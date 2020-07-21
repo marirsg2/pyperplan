@@ -16,7 +16,7 @@ def compute_NN_wGPF_heuristic(task):
     pass
 
 
-class GP_features_Heuristic(Heuristic): #class name must end with "Heuristic"
+class GPfeaturesHeuristic(Heuristic): #class name must end with "Heuristic"
     def __init__(self, task):
         self.task = task
 
@@ -29,4 +29,4 @@ class GP_features_Heuristic(Heuristic): #class name must end with "Heuristic"
         # be returned.
         return h
 
-NEXT USE THIS DUMMY HEURISTIC AND RUN THE CODE
+#todo NEXT USE THIS DUMMY HEURISTIC AND RUN THE CODE
