@@ -1,0 +1,19 @@
+#TODO !! suggest policy nx variant to Daniel and Vamsi. output = Probability of correct action. mimics the asnets, albeit one action at a time.
+#   the training process would be different, we need to include a lot of incorrect actions and states to train the network, in fact, we would ideally have all incorrect
+#   actions from each state. Since the training problems are smaller, this would not be as many.
+# just like ASnets (verify this part), we could add a heuristic about previous actions tried/count.
+
+#todo NEXT: get traces from logistics for small problems. Convert them to state sequences, store the goal .
+
+# todo, If we modified logistics to include an airplane can reach edge. THEN the structure of the planning problem could be very diverse !! essentially, a proper
+# edge for a graph whose structure varied. Not just FC across all airports. So then would the GP generalize to a new problem where there are multiple hops to the goal.
+
+# Are all GP features heurisitcs ?
+# If the General feature includes some counting or hops to a goal, then it is some kind of heuristic (distance). I guess some GP features are distance functions(heuristic).
+# eg: The the height of the blocks. Are there any helpful features that are not heuristics ? Perhaps some features just tell you what action to take. But a "good" action is one that
+# reduces the distance to the goal , so arent all GP features heuristics ? Well... the one counter I can think is that some features tell you how to behave to reach a state further
+# away, but from where we can follow a rote policy to reach the goal. This would require special training ?? otherwise, all GP features are just heuristics.
+
+#IF we do policy nx rather than distance function, then while training, I think we need to do "current policy walks" and penalize actions that go to states from which the current policy increases distance, rather than decreases distance.
+#ASnets did something similar (review this part)
+
