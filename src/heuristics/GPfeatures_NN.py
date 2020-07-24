@@ -14,7 +14,9 @@ The inference process would be the heuristic fed to the pyperplan
 """
 
 NUM_EPOCHS = 100
-train_data_file = "JPMC_GenPlan_100c2_s4_p1_a1_logistics_dataset.p"
+HIDDEN_DIM_SIZE = 50
+lisp_input_file = "state_and_goal.txt"
+train_data_file = "./GenPlan_data/JPMC_GenPlan_logistics_multiSetting.p"
 trained_model_location = "GP_NN_heuristic_weights.pt"
 
 #TODO !! suggest policy nx variant to Daniel and Vamsi. output = Probability of correct action. mimics the asnets, albeit one action at a time.
@@ -64,5 +66,22 @@ if __name__ == "__main__":
     train_data = None
     with open(train_data_file,"rb") as src:
         train_data = pickle.load(src)
-    trained_NN_model = train_NN(train_data , num_GP_features = 100 , hidden_dim_size = 50)
+    # for x in train_data:
+    #     print(x)
+    #CONVERT INTO FILE. pass to lisp program
+    preprocessed_data = []
+    for state,goal,distance in train_data:
+        with open(lisp_input_file,"w") as dest:
+            dest.write("(:init\n")
+            for proposition in state:
+                dest.write("("+proposition.replace("_"," ")+")\n")
+            dest.write(")\n")
+            # dest.write("(:goal\n(and\n")
+            dest.write("(:goal\n") #there is no need for "and" in this application
+            for proposition in goal:
+                dest.write("("+proposition.replace("_"," ")+")\n")
+            dest.write(")\n") #close goal
+    #end for loop through the train data
+    #todo get dim size based on lisp program feedback, set as feature size
+    trained_NN_model = train_NN(train_data , num_GP_features = 100 , hidden_dim_size = HIDDEN_DIM_SIZE)
     torch.save(trained_NN_model,trained_model_location)

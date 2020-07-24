@@ -1,0 +1,15 @@
+
+-------For lisp
+1) SBCL - can install with apt-get (done)
+2) Hack an initialization file . Get from Daniel, and note edits.
+    define the root path of Daniel's code
+    Get more details.
+
+3) SEND as PDDL FILE, state and goal, pass file_path.
+
+4) generates vector, csv.
+    eg: "1,0,1,0,5,12,3", std out, pipe into file
+    Save feature file also gen
+
+
+
