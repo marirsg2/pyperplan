@@ -18,8 +18,9 @@ We preprocess this training data into vector of general features, and the target
 The inference process would be the heuristic fed to the pyperplan
 """
 
-NUM_EPOCHS = 10
+NUM_EPOCHS = 1000
 BATCH_SIZE = 32
+BATCH_LOG_INTERVAL = 10
 HIDDEN_DIM_SIZE = 500
 domain_name = "logistics" #fixed set of domains
 home_dir = "/home/yochan-ubuntu19"
@@ -29,8 +30,8 @@ target_domain_name = "logistics" #should match folder name in the lisp program d
 lisp_input_file = "./test.pddl"
 train_data_file = "../GenPlan_data/JPMC_GenPlan_logistics_multiSetting.p"
 preprocessed_data_save_file = train_data_file.replace(".p", "_preprocessed.p")
-# pickled_preprocessed_data = None # or its the save file preprocessed_data_save_file
-pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
+pickled_preprocessed_data = None # or its the save file preprocessed_data_save_file
+# pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
 trained_model_location = "GP_NN_heuristic_weights.pt"
 
 
@@ -66,7 +67,7 @@ class GP_NN_heuristic_model_class(torch.nn.Module):
 def train_NN(train_torch_dataset, num_GP_features =100, hidden_dim_size = 50):
     NN_model = GP_NN_heuristic_model_class(num_GP_features, hidden_dim_size)
     criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.SGD(NN_model.parameters(), lr=1e-4)
+    optimizer = torch.optim.SGD(NN_model.parameters(), lr=0.0001)
     optimizer.zero_grad()
     params = {'batch_size': BATCH_SIZE,
               'shuffle': True,
@@ -78,7 +79,7 @@ def train_NN(train_torch_dataset, num_GP_features =100, hidden_dim_size = 50):
             batch_pred = NN_model(batch_input)
             loss = criterion(batch_pred, batch_output)
             loss.backward()  # accumulate gradients
-            if batch_idx == 1: #yes intentionally
+            if batch_idx%BATCH_LOG_INTERVAL == 0 :
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_idx * BATCH_SIZE, len(data_loader.dataset),
                            100. * batch_idx / len(data_loader), loss.item()))
@@ -102,7 +103,7 @@ if __name__ == "__main__":
     if pickled_preprocessed_data != None:
         with open(preprocessed_data_save_file, "rb") as src:
             preprocessed_torch_dataset = pickle.load(src)
-            feature_size = preprocessed_torch_dataset[0][0][0].shape[0]
+            feature_size = preprocessed_torch_dataset[0][0].shape[0]
     else:
         raw_data = None
         with open(train_data_file,"rb") as src:
@@ -153,7 +154,7 @@ if __name__ == "__main__":
             #end with
         #end for
         data_input = torch.tensor(preprocessed_data_input,dtype=torch.float)
-        data_output = torch.tensor(preprocessed_data_input,dtype=torch.float)
+        data_output = torch.tensor(preprocessed_data_output,dtype=torch.float)
         preprocessed_torch_dataset = TensorDataset(data_input,data_output)
 
 
@@ -161,7 +162,7 @@ if __name__ == "__main__":
         with open(preprocessed_data_save_file, "wb") as dest:
             pickle.dump(preprocessed_torch_dataset, dest)
         print("finished preprocessing data")
-        exit(0)
+
     #end else - for preparing the preprocessed data
 
     #todo get dim size based on lisp program feedback, set as feature size
