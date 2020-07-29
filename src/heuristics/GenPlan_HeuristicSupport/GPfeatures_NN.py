@@ -17,9 +17,9 @@ We preprocess this training data into vector of general features, and the target
 The inference process would be the heuristic fed to the pyperplan
 """
 
-NUM_EPOCHS = 100
+NUM_EPOCHS = 10
 BATCH_SIZE = 32
-HIDDEN_DIM_SIZE = 50
+HIDDEN_DIM_SIZE = 500
 domain_name = "logistics" #fixed set of domains
 home_dir = "/home/yochan-ubuntu19"
 lisp_feature_gen_base_folder = home_dir +"/workspace/deepplan/dist"
@@ -27,6 +27,9 @@ relative_location_problem_and_feature_files = "planning/sayphi/domains/logistics
 target_domain_name = "logistics" #should match folder name in the lisp program directory
 lisp_input_file = "./test.pddl"
 train_data_file = "../GenPlan_data/JPMC_GenPlan_logistics_multiSetting.p"
+preprocessed_data_save_file = train_data_file.replace(".p", "_preprocessed.p")
+# pickled_preprocessed_data = None # or its the save file preprocessed_data_save_file
+pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
 trained_model_location = "GP_NN_heuristic_weights.pt"
 
 
@@ -82,52 +85,65 @@ def train_NN(train_data, num_GP_features =100, hidden_dim_size = 50):
 
 
 if __name__ == "__main__":
-    raw_data = None
-    with open(train_data_file,"rb") as src:
-        raw_data = pickle.load(src)
-
-    #todo call the init function for the domain in question
-    cwd = os.getcwd()
-    os.chdir(lisp_feature_gen_base_folder)
-    os.system("./init-deepplan.sh " + domain_name) #cannot execute script from different directory as code tries to access deeplan.mem from local offset
-    os.chdir(cwd)
-
-    #get the feature size --this is ugly but prevents repetitive checks or reassignments to feature size
-    state, goal, distance = raw_data[1]
-    # prepare to call the lisp program to get the features
-    convert_to_logistics_problem_file(state, goal, lisp_input_file)
-    #copy this file to the target location for lisp feat gen to read
-    os.system("cp " + lisp_input_file + " " + lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files)
-    # now call the lisp program to get the features, and save <features,distance>
-    os.chdir(lisp_feature_gen_base_folder)
-    os.system(lisp_feature_gen_base_folder + "/run-deepplan.sh "+domain_name + " " + lisp_input_file)
-    os.chdir(cwd)
-    # now read the csv file containing the state description and convert to vector format and save
-    # in "preprocessed_data"
-    result_features_loc = lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files + "/state-deepplan.csv"
-    state_features = []
-    with open(result_features_loc, newline='') as csvfile:
-        feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
-        feature_size = len(feature_reader.__next__())
-
     preprocessed_data = []
-    for state,goal,distance in raw_data:
-        convert_to_logistics_problem_file(state,goal,lisp_input_file)
-        os.system("cp "+lisp_input_file + " " + lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files)
-        os.system("The lisp command") #todo get the right syntax from daniel, the bash file makes no reference to a folder ?
-        #now read the csv file containing the state description and convert to vector format and save
-        # in "preprocessed_data"
-        result_features_loc = lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files + "/state-deepplan.csv"
+    feature_size = -1
+    if pickled_preprocessed_data != None:
+        with open(preprocessed_data_save_file, "rb") as src:
+            preprocessed_data = pickle.load(src)
+            feature_size = preprocessed_data[0][0][0].shape[0]
+    else:
+        raw_data = None
+        with open(train_data_file,"rb") as src:
+            raw_data = pickle.load(src)
+
+        #todo call the init function for the domain in question
+        cwd = os.getcwd()
+        os.chdir(lisp_feature_gen_base_folder)
+        os.system("./init-deepplan.sh " + domain_name) #cannot execute script from different directory as code tries to access deeplan.mem from local offset
+        os.chdir(cwd)
+
+        #get the feature size --this is ugly but prevents repetitive checks or reassignments to feature size
+        state, goal, distance = raw_data[1]
+        # prepare to call the lisp program to get the features
+        convert_to_logistics_problem_file(state, goal, lisp_input_file)
+        #copy this file to the target location for lisp feat gen to read
+        os.system("cp " + lisp_input_file + " " + lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files)
+        # now call the lisp program to get the features, and save <features,distance>
+        os.chdir(lisp_feature_gen_base_folder)
+        os.system(lisp_feature_gen_base_folder + "/run-deepplan.sh "+domain_name + " " + lisp_input_file)
+        os.chdir(cwd)
+        # get the feature size
+        result_features_loc = lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files + "/state-deepplan.csv"
         state_features = []
         with open(result_features_loc, newline='') as csvfile:
             feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
-            state_features = [int(x) for x in feature_reader.__next__()]
-            preprocessed_data.append((np.array(state_features),distance))
-        #end with
-    #end for
-    #--now we have the training data in the right format
+            feature_size = len(feature_reader.__next__())
 
-    #end for loop through the train data
+        for state,goal,distance in raw_data:
+            convert_to_logistics_problem_file(state,goal,lisp_input_file)
+            os.system("cp "+lisp_input_file + " " + lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files)
+            # now call the lisp program to get the features, and save <features,distance>
+            os.chdir(lisp_feature_gen_base_folder)
+            os.system(lisp_feature_gen_base_folder + "/run-deepplan.sh " + domain_name + " " + lisp_input_file)
+            os.chdir(cwd)
+            # now read the csv file containing the state description and convert to vector format and save
+            # in "preprocessed_data"
+            result_features_loc = lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files + "/state-deepplan.csv"
+            state_features = []
+            with open(result_features_loc, newline='') as csvfile:
+                feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
+                state_features = [int(x) for x in feature_reader.__next__()]
+                #todo save as torch dataset, better for loading and shuffling
+                preprocessed_data.append((torch.tensor([state_features],dtype=torch.float),torch.tensor([distance],dtype=torch.float)))
+            #end with
+        #end for
+        #--now we have the training data in the right format
+        with open(preprocessed_data_save_file, "wb") as dest:
+            pickle.dump(preprocessed_data,dest)
+        print("finished preprocessing data")
+        exit(0)
+    #end else - for preparing the preprocessed data
+
     #todo get dim size based on lisp program feedback, set as feature size
     trained_NN_model = train_NN(preprocessed_data , num_GP_features = feature_size , hidden_dim_size = HIDDEN_DIM_SIZE)
     #---now save the NN
