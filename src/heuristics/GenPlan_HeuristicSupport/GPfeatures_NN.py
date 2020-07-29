@@ -20,12 +20,15 @@ The inference process would be the heuristic fed to the pyperplan
 NUM_EPOCHS = 100
 BATCH_SIZE = 32
 HIDDEN_DIM_SIZE = 50
-lisp_feature_gen_base_folder = "~/workspace/deepplan/dist"
+domain_name = "logistics" #fixed set of domains
+home_dir = "/home/yochan-ubuntu19"
+lisp_feature_gen_base_folder = home_dir +"/workspace/deepplan/dist"
 relative_location_problem_and_feature_files = "planning/sayphi/domains/logistics/probsets"
+target_domain_name = "logistics" #should match folder name in the lisp program directory
 lisp_input_file = "./test.pddl"
 train_data_file = "../GenPlan_data/JPMC_GenPlan_logistics_multiSetting.p"
 trained_model_location = "GP_NN_heuristic_weights.pt"
-domain_name = "logistics" #fixed set of domains
+
 
 
 #TODO !! suggest policy nx variant to Daniel and Vamsi. output = Probability of correct action. mimics the asnets, albeit one action at a time.
@@ -69,10 +72,10 @@ def train_NN(train_data, num_GP_features =100, hidden_dim_size = 50):
             y_pred = NN_model(x)
             y = distance_to_goal
             loss = criterion(y_pred, y)
-            loss.backward()
+            loss.backward() #accumulate gradients
             if idx%BATCH_SIZE == BATCH_SIZE-1:
-                optimizer.step()
-                optimizer.zero_grad()
+                optimizer.step() #update weights
+                optimizer.zero_grad() #reset gradients to zero for the next minibatch
     #end for
     return NN_model
 #end def train_NN
@@ -83,6 +86,12 @@ if __name__ == "__main__":
     with open(train_data_file,"rb") as src:
         raw_data = pickle.load(src)
 
+    #todo call the init function for the domain in question
+    cwd = os.getcwd()
+    os.chdir(lisp_feature_gen_base_folder)
+    os.system("./init-deepplan.sh " + domain_name) #cannot execute script from different directory as code tries to access deeplan.mem from local offset
+    os.chdir(cwd)
+
     #get the feature size --this is ugly but prevents repetitive checks or reassignments to feature size
     state, goal, distance = raw_data[1]
     # prepare to call the lisp program to get the features
@@ -90,8 +99,9 @@ if __name__ == "__main__":
     #copy this file to the target location for lisp feat gen to read
     os.system("cp " + lisp_input_file + " " + lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files)
     # now call the lisp program to get the features, and save <features,distance>
-    # note we assume the init command has been called for the domain in question
-    os.system("The lisp command")  # todo get the right syntax from daniel, the bash file makes no reference to a folder ?
+    os.chdir(lisp_feature_gen_base_folder)
+    os.system(lisp_feature_gen_base_folder + "/run-deepplan.sh "+domain_name + " " + lisp_input_file)
+    os.chdir(cwd)
     # now read the csv file containing the state description and convert to vector format and save
     # in "preprocessed_data"
     result_features_loc = lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files + "/state-deepplan.csv"
