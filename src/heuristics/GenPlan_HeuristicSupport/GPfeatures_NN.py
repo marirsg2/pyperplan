@@ -1,9 +1,11 @@
 import os
+import csv
 import math
+import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 import pickle
+from random import shuffle
 from heuristics.GenPlan_HeuristicSupport.PDDL_util_func import *
 """
 
@@ -16,10 +18,11 @@ The inference process would be the heuristic fed to the pyperplan
 """
 
 NUM_EPOCHS = 100
+BATCH_SIZE = 32
 HIDDEN_DIM_SIZE = 50
 lisp_feature_gen_base_folder = "~/workspace/deepplan/dist"
-relative_location_gen_features_file = "planning/sayphi/domains/logistics"
-lisp_input_file = "./state_and_goal.txt"
+relative_location_problem_and_feature_files = "planning/sayphi/domains/logistics/probsets"
+lisp_input_file = "./test.pddl"
 train_data_file = "../GenPlan_data/JPMC_GenPlan_logistics_multiSetting.p"
 trained_model_location = "GP_NN_heuristic_weights.pt"
 domain_name = "logistics" #fixed set of domains
@@ -28,14 +31,16 @@ domain_name = "logistics" #fixed set of domains
 #TODO !! suggest policy nx variant to Daniel and Vamsi. output = Probability of correct action. mimics the asnets, albeit one action at a time.
 
 class GP_NN_heuristic_model_class(torch.nn.Module):
-    def __init__(self, num_GP_features, H):
+    def __init__(self, num_GP_features, L1_dim_size):
         """
         In the constructor we instantiate two nn.Linear modules and assign them as
         member variables.
         """
         super(GP_NN_heuristic_model_class, self).__init__()
-        self.linear1 = torch.nn.Linear(num_GP_features, H)
-        self.linear2 = torch.nn.Linear(H, 1)
+        self.linear1 = torch.nn.Linear(num_GP_features, L1_dim_size)
+        self.linear2 = torch.nn.Linear(L1_dim_size, int(L1_dim_size / 2))
+        self.linear3 = torch.nn.Linear(int(L1_dim_size / 2), int(L1_dim_size / 4))
+        self.linear4 = torch.nn.Linear(int(L1_dim_size / 4), 1)
 
     def forward(self, x):
         """
@@ -44,62 +49,76 @@ class GP_NN_heuristic_model_class(torch.nn.Module):
         well as arbitrary operators on Tensors.
         """
         h_relu = F.relu(self.linear1(x))
-        y_pred = F.relu(self.linear2(h_relu))
+        h_relu = F.relu(self.linear2(h_relu))
+        h_relu = F.relu(self.linear3(h_relu))
+        y_pred = F.relu(self.linear4(h_relu))
         return y_pred
+    #end def forward
 
 
 def train_NN(train_data, num_GP_features =100, hidden_dim_size = 50):
     NN_model = GP_NN_heuristic_model_class(num_GP_features, hidden_dim_size)
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(NN_model.parameters(), lr=1e-4)
+    optimizer.zero_grad()
     for t in range(NUM_EPOCHS):
-        for state, distance_to_goal in train_data:
-            x = [1.0]*num_GP_features#todo call Daniels lisp code through another process. Or execute his program through an os interface (easiest)
+        shuffle(train_data)
+        for idx in range(len(train_data)):
+            state, distance_to_goal = train_data[idx]
+            x = state
             y_pred = NN_model(x)
             y = distance_to_goal
             loss = criterion(y_pred, y)
-            if t % 100 == 99:
-                print(t, loss.item())
-            optimizer.zero_grad()
             loss.backward()
-            optimizer.step()
+            if idx%BATCH_SIZE == BATCH_SIZE-1:
+                optimizer.step()
+                optimizer.zero_grad()
     #end for
     return NN_model
 #end def train_NN
 
 
 if __name__ == "__main__":
-    train_data = None
+    raw_data = None
     with open(train_data_file,"rb") as src:
-        train_data = pickle.load(src)
-    # for x in train_data:
-    #     print(x)
-    #CONVERT INTO FILE. pass to lisp program
+        raw_data = pickle.load(src)
 
-    feature_size = -1
-    #get the feature size
-    state, goal, distance = train_data[1]
+    #get the feature size --this is ugly but prevents repetitive checks or reassignments to feature size
+    state, goal, distance = raw_data[1]
     # prepare to call the lisp program to get the features
     convert_to_logistics_problem_file(state, goal, lisp_input_file)
+    #copy this file to the target location for lisp feat gen to read
+    os.system("cp " + lisp_input_file + " " + lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files)
     # now call the lisp program to get the features, and save <features,distance>
     # note we assume the init command has been called for the domain in question
-    os.system()
-    # now read the csv file containing the state description and determine the feature size
-    feature_size = -1
-    preprocessed_data = []
-    for state,goal,distance in train_data:
-        #prepare to call the lisp program to get the features
-        convert_to_logistics_problem_file(state,goal,lisp_input_file)
-        #now call the lisp program to get the features, and save <features,distance>
-        #note we assume the init command has been called for the domain in question
-        os.system()
-        #now read the csv file containing the state description and convert to vector format and save
-        # in preprocessed data
+    os.system("The lisp command")  # todo get the right syntax from daniel, the bash file makes no reference to a folder ?
+    # now read the csv file containing the state description and convert to vector format and save
+    # in "preprocessed_data"
+    result_features_loc = lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files + "/state-deepplan.csv"
+    state_features = []
+    with open(result_features_loc, newline='') as csvfile:
+        feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
+        feature_size = len(feature_reader.__next__())
 
+    preprocessed_data = []
+    for state,goal,distance in raw_data:
+        convert_to_logistics_problem_file(state,goal,lisp_input_file)
+        os.system("cp "+lisp_input_file + " " + lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files)
+        os.system("The lisp command") #todo get the right syntax from daniel, the bash file makes no reference to a folder ?
+        #now read the csv file containing the state description and convert to vector format and save
+        # in "preprocessed_data"
+        result_features_loc = lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files + "/state-deepplan.csv"
+        state_features = []
+        with open(result_features_loc, newline='') as csvfile:
+            feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
+            state_features = [int(x) for x in feature_reader.__next__()]
+            preprocessed_data.append((np.array(state_features),distance))
+        #end with
+    #end for
+    #--now we have the training data in the right format
 
     #end for loop through the train data
     #todo get dim size based on lisp program feedback, set as feature size
-    trained_NN_model = train_NN(train_data , num_GP_features = 100 , hidden_dim_size = HIDDEN_DIM_SIZE)
-
-    #---now train the NN and save it
+    trained_NN_model = train_NN(preprocessed_data , num_GP_features = feature_size , hidden_dim_size = HIDDEN_DIM_SIZE)
+    #---now save the NN
     torch.save(trained_NN_model,trained_model_location)
