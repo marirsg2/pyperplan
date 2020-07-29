@@ -6,6 +6,7 @@ import torch
 import torch.nn.functional as F
 import pickle
 from random import shuffle
+from torch.utils.data import TensorDataset, DataLoader
 from heuristics.GenPlan_HeuristicSupport.PDDL_util_func import *
 """
 
@@ -62,35 +63,46 @@ class GP_NN_heuristic_model_class(torch.nn.Module):
     #end def forward
 
 
-def train_NN(train_data, num_GP_features =100, hidden_dim_size = 50):
+def train_NN(train_torch_dataset, num_GP_features =100, hidden_dim_size = 50):
     NN_model = GP_NN_heuristic_model_class(num_GP_features, hidden_dim_size)
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(NN_model.parameters(), lr=1e-4)
     optimizer.zero_grad()
-    for t in range(NUM_EPOCHS):
-        shuffle(train_data)
-        for idx in range(len(train_data)):
-            state, distance_to_goal = train_data[idx]
+    params = {'batch_size': BATCH_SIZE,
+              'shuffle': True,
+              'num_workers': 4}
+    data_loader = DataLoader(train_torch_dataset,**params)
+    for epoch in range(NUM_EPOCHS):
+        for batch_idx,(batch_input, batch_output) in enumerate(data_loader):
+            optimizer.zero_grad()
+            batch_pred = NN_model(batch_input)
+            loss = criterion(batch_pred, batch_output)
+            loss.backward()  # accumulate gradients
+            if batch_idx == 1: #yes intentionally
+                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                    epoch, batch_idx * BATCH_SIZE, len(data_loader.dataset),
+                           100. * batch_idx / len(data_loader), loss.item()))
+
+        for idx in range(len(train_torch_dataset)):
+            state, distance_to_goal = train_torch_dataset[idx]
             x = state
             y_pred = NN_model(x)
             y = distance_to_goal
             loss = criterion(y_pred, y)
             loss.backward() #accumulate gradients
-            if idx%BATCH_SIZE == BATCH_SIZE-1:
-                optimizer.step() #update weights
-                optimizer.zero_grad() #reset gradients to zero for the next minibatch
+
     #end for
     return NN_model
 #end def train_NN
 
 
 if __name__ == "__main__":
-    preprocessed_data = []
+    preprocessed_torch_dataset = []
     feature_size = -1
     if pickled_preprocessed_data != None:
         with open(preprocessed_data_save_file, "rb") as src:
-            preprocessed_data = pickle.load(src)
-            feature_size = preprocessed_data[0][0][0].shape[0]
+            preprocessed_torch_dataset = pickle.load(src)
+            feature_size = preprocessed_torch_dataset[0][0][0].shape[0]
     else:
         raw_data = None
         with open(train_data_file,"rb") as src:
@@ -119,6 +131,8 @@ if __name__ == "__main__":
             feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
             feature_size = len(feature_reader.__next__())
 
+        preprocessed_data_input = []
+        preprocessed_data_output = []
         for state,goal,distance in raw_data:
             convert_to_logistics_problem_file(state,goal,lisp_input_file)
             os.system("cp "+lisp_input_file + " " + lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files)
@@ -134,17 +148,23 @@ if __name__ == "__main__":
                 feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
                 state_features = [int(x) for x in feature_reader.__next__()]
                 #todo save as torch dataset, better for loading and shuffling
-                preprocessed_data.append((torch.tensor([state_features],dtype=torch.float),torch.tensor([distance],dtype=torch.float)))
+                preprocessed_data_input.append(state_features)
+                preprocessed_data_output.append([distance])#yes it needs to be a nested list/array
             #end with
         #end for
+        data_input = torch.tensor(preprocessed_data_input,dtype=torch.float)
+        data_output = torch.tensor(preprocessed_data_input,dtype=torch.float)
+        preprocessed_torch_dataset = TensorDataset(data_input,data_output)
+
+
         #--now we have the training data in the right format
         with open(preprocessed_data_save_file, "wb") as dest:
-            pickle.dump(preprocessed_data,dest)
+            pickle.dump(preprocessed_torch_dataset, dest)
         print("finished preprocessing data")
         exit(0)
     #end else - for preparing the preprocessed data
 
     #todo get dim size based on lisp program feedback, set as feature size
-    trained_NN_model = train_NN(preprocessed_data , num_GP_features = feature_size , hidden_dim_size = HIDDEN_DIM_SIZE)
+    trained_NN_model = train_NN(preprocessed_torch_dataset, num_GP_features = feature_size, hidden_dim_size = HIDDEN_DIM_SIZE)
     #---now save the NN
     torch.save(trained_NN_model,trained_model_location)
