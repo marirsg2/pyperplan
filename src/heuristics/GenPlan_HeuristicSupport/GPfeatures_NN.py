@@ -131,6 +131,8 @@ if __name__ == "__main__":
 
         preprocessed_data_input = []
         preprocessed_data_output = []
+        curr_state_feat = np.zeros(feature_size)
+        prev_state_feat = np.zeros(feature_size)
         for state,goal,distance in raw_data:
             convert_to_logistics_problem_file(state,goal,lisp_input_file)
             os.system("cp "+lisp_input_file + " " + lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files)
@@ -145,6 +147,11 @@ if __name__ == "__main__":
             with open(result_features_loc, newline='') as csvfile:
                 feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
                 state_features = [int(x) for x in feature_reader.__next__()]
+                curr_state_feat = np.array(state_features)
+                diff = curr_state_feat - prev_state_feat
+                print(np.sum(diff))
+                prev_state_feat = curr_state_feat
+
                 #todo save as torch dataset, better for loading and shuffling
                 preprocessed_data_input.append(state_features)
                 preprocessed_data_output.append([distance])#yes it needs to be a nested list/array
