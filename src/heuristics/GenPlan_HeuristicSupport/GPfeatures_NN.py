@@ -79,20 +79,17 @@ def train_NN(train_torch_dataset, num_GP_features =100, hidden_dim_size = 50):
             batch_pred = NN_model(batch_input)
             loss = criterion(batch_pred, batch_output)
             loss.backward()  # accumulate gradients
+            optimizer.step()
             if batch_idx%BATCH_LOG_INTERVAL == 0 :
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_idx * BATCH_SIZE, len(data_loader.dataset),
                            100. * batch_idx / len(data_loader), loss.item()))
+            if batch_idx == 0 and epoch%10 == 0:
+                print(batch_pred)
+                print(batch_output)
+        #end for loop through batches
+    #end for loop through epochs
 
-        for idx in range(len(train_torch_dataset)):
-            state, distance_to_goal = train_torch_dataset[idx]
-            x = state
-            y_pred = NN_model(x)
-            y = distance_to_goal
-            loss = criterion(y_pred, y)
-            loss.backward() #accumulate gradients
-
-    #end for
     return NN_model
 #end def train_NN
 
