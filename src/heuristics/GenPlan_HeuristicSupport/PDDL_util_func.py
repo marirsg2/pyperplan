@@ -23,9 +23,10 @@ def convert_to_logistics_problem_file(state,goal,dest_problem_file):
         dest.write("(:objects\n")
 
         #collect all objects in the state
-        all_obj = []
+        temp_all_obj = []
         for proposition in state:
-            all_obj += proposition.split("_")[1:]
+            temp_all_obj += proposition.split("_")[1:]
+        all_obj = sorted(list(set(temp_all_obj)))
         for obj in all_obj:
             dest.write(" "+obj)
         dest.write("\n)\n")
