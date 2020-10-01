@@ -23,15 +23,26 @@ def convert_to_logistics_problem_file(state,goal,dest_problem_file):
         dest.write("(:objects\n")
 
         #collect all objects in the state
-        temp_all_obj = []
+
+        temp_obj_dict = {"c":set(),"l":set(),"t":set(),"a":set(),"p":set()}
+        type_decoder_dict = {"c":"city","l":"location","t":"truck","a":"airplane","p":"package"}
         for proposition in state:
-            temp_all_obj += proposition.split("_")[1:]
-        all_obj = sorted(list(set(temp_all_obj)))
-        for obj in all_obj:
-            dest.write(" "+obj)
-        dest.write("\n)\n")
+            temp_objs = proposition.split("_")[1:]
+            for single_obj in temp_objs:
+                temp_obj_dict[single_obj[0]].add(single_obj) #first letter is the key
+        #end loop through propositions
+
+        for obj_type_letter in temp_obj_dict.keys():
+            curr_line = "  "
+            for single_obj in temp_obj_dict[obj_type_letter]:
+                curr_line += single_obj + " "
+            curr_line += "  - TYP" + type_decoder_dict[obj_type_letter] + "\n"
+            dest.write(curr_line)
+        #end for loop through obj types
+        dest.write(")\n")
         #now we have written all objects
         dest.write("(:init\n")
+        state = sorted(state)
         for proposition in state:
             dest.write("(" + proposition.replace("_", " ") + ")\n")
         dest.write(")\n")
