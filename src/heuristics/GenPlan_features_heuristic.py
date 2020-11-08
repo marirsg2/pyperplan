@@ -7,7 +7,7 @@ Landmarks Heuristic
 """
 
 import torch
-from heuristics.GenPlan_HeuristicSupport.GPfeatures_NN import trained_model_location
+from heuristics.GenPlan_HeuristicSupport.Logistics_GPfeatures_NN import trained_model_location
 from heuristics.heuristic_base import Heuristic
 
 

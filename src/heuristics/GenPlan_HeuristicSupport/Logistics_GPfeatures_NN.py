@@ -35,7 +35,6 @@ pickled_preprocessed_data = None # or its the save file preprocessed_data_save_f
 trained_model_location = "GP_NN_heuristic_weights.pt"
 
 
-
 #TODO !! suggest policy nx variant to Daniel and Vamsi. output = Probability of correct action. mimics the asnets, albeit one action at a time.
 
 class GP_NN_heuristic_model_class(torch.nn.Module):
