@@ -30,10 +30,9 @@ target_domain_name = "gripper" #should match folder name in the lisp program dir
 lisp_input_file = "./test.pddl"
 train_data_file = "../GenPlan_data/JPMC_GenPlan_gripper_multiSetting.p"
 preprocessed_data_save_file = train_data_file.replace(".p", "_preprocessed.p")
-pickled_preprocessed_data = None # or its the save file preprocessed_data_save_file
+pickled_preprocessed_data = preprocessed_data_save_file # None # or its the save file preprocessed_data_save_file
 # pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
-trained_model_location = "GP_NN_heuristic_weights.pt"
-
+trained_model_location = "gripper_GP_NN_heuristic_weights.pt"
 
 
 #TODO !! suggest policy nx variant to Daniel and Vamsi. output = Probability of correct action. mimics the asnets, albeit one action at a time.
@@ -134,7 +133,7 @@ if __name__ == "__main__":
         curr_state_feat = np.zeros(feature_size)
         prev_state_feat = np.zeros(feature_size)
         for state,goal,distance in raw_data:
-            convert_to_logistics_problem_file(state,goal,lisp_input_file)
+            convert_to_gripper_problem_file(state,goal,lisp_input_file)
             os.system("cp "+lisp_input_file + " " + lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files)
             # now call the lisp program to get the features, and save <features,distance>
             os.chdir(lisp_feature_gen_base_folder)

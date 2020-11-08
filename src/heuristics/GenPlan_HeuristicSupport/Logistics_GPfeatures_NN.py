@@ -32,7 +32,7 @@ train_data_file = "../GenPlan_data/JPMC_GenPlan_logistics_multiSetting.p"
 preprocessed_data_save_file = train_data_file.replace(".p", "_preprocessed.p")
 pickled_preprocessed_data = None # or its the save file preprocessed_data_save_file
 # pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
-trained_model_location = "GP_NN_heuristic_weights.pt"
+trained_model_location = "gripper_GP_NN_heuristic_weights.pt"
 
 
 #TODO !! suggest policy nx variant to Daniel and Vamsi. output = Probability of correct action. mimics the asnets, albeit one action at a time.

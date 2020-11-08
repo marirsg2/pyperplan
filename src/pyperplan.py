@@ -288,4 +288,8 @@ def main():
 
 
 if __name__ == "__main__":
+    import sys
+    sys.argv.extend(['-H', "gpfeatures"])
+    sys.argv.extend(["../benchmarks/gripper_MOD/gripper_domain.pddl", "../benchmarks/gripper_MOD/gripper_problem.pddl"])
+
     main()
