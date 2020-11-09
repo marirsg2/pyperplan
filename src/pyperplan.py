@@ -291,7 +291,8 @@ if __name__ == "__main__":
     from heuristics.GenPlan_HeuristicSupport.Gripper_GPfeatures_NN import GP_NN_heuristic_model_class
     import sys
     sys.argv.extend(['--heuristic', "gpfeatures"])
-    sys.argv.extend(['--search', "gbf"])
+    # sys.argv.extend(['--search', "gbf"])
+    sys.argv.extend(['--search', "bfs"])
     sys.argv.extend(["../benchmarks/gripper_MOD/gripper_domain.pddl", "../benchmarks/gripper_MOD/gripper_problem.pddl"])
 
     main()

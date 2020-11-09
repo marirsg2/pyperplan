@@ -1,0 +1,15 @@
+2020-11-09 15:43:20,099 INFO     Goal reached. Start extraction of solution.
+2020-11-09 15:43:20,099 INFO     1030 Nodes expanded
+2020-11-09 15:43:20,099 INFO     Search end: gripper-1-2-5
+2020-11-09 15:43:20,099 INFO     Search time: 1.5e+02
+2020-11-09 15:43:20,099 INFO     Plan length: 12
+2020-11-09 15:43:20,102 INFO     validate could not be found on the PATH so the plan can not be validated.
+
+vs BFS
+2020-11-09 16:29:44,354 INFO     440 Nodes expanded
+2020-11-09 16:29:44,354 INFO     Search end: gripper-1-2-5
+2020-11-09 16:29:44,354 INFO     Search time: 0.006
+2020-11-09 16:29:44,354 INFO     Plan length: 8
+2020-11-09 16:29:44,356 INFO     validate could not be found on the PATH so the plan can not be validated.
+
+horrible
