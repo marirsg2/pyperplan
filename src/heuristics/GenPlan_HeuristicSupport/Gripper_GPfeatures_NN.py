@@ -1,6 +1,5 @@
 import os
 import csv
-import math
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -18,9 +17,9 @@ We preprocess this training data into vector of general features, and the target
 The inference process would be the heuristic fed to the pyperplan
 """
 
-NUM_EPOCHS = 1000
+NUM_EPOCHS = 2
 BATCH_SIZE = 32
-BATCH_LOG_INTERVAL = 10
+BATCH_LOG_INTERVAL = 100
 HIDDEN_DIM_SIZE = 500
 domain_name = "gripper" #fixed set of domains
 home_dir = "/home/yochan-ubuntu19"
@@ -30,8 +29,8 @@ target_domain_name = "gripper" #should match folder name in the lisp program dir
 lisp_input_file = "./test.pddl"
 train_data_file = "../GenPlan_data/JPMC_GenPlan_gripper_multiSetting.p"
 preprocessed_data_save_file = train_data_file.replace(".p", "_preprocessed.p")
-pickled_preprocessed_data = preprocessed_data_save_file # None # or its the save file preprocessed_data_save_file
-# pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
+# pickled_preprocessed_data = None # None # or its the save file preprocessed_data_save_file
+pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
 trained_model_location = "gripper_GP_NN_heuristic_weights.pt"
 
 
@@ -66,7 +65,7 @@ class GP_NN_heuristic_model_class(torch.nn.Module):
 def train_NN(train_torch_dataset, num_GP_features =100, hidden_dim_size = 50):
     NN_model = GP_NN_heuristic_model_class(num_GP_features, hidden_dim_size)
     criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.SGD(NN_model.parameters(), lr=0.0001)
+    optimizer = torch.optim.SGD(NN_model.parameters(), lr=0.00001)
     optimizer.zero_grad()
     params = {'batch_size': BATCH_SIZE,
               'shuffle': True,
@@ -132,7 +131,16 @@ if __name__ == "__main__":
         preprocessed_data_output = []
         curr_state_feat = np.zeros(feature_size)
         prev_state_feat = np.zeros(feature_size)
+        max_distance = 0.0
+        distance_dict = {}
         for state,goal,distance in raw_data:
+            if distance > max_distance:
+                print("new max distance =", distance)
+                max_distance = distance
+            try:
+                distance_dict[distance] += 1
+            except KeyError:
+                distance_dict[distance] = 1
             convert_to_gripper_problem_file(state,goal,lisp_input_file)
             os.system("cp "+lisp_input_file + " " + lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files)
             # now call the lisp program to get the features, and save <features,distance>
@@ -156,6 +164,7 @@ if __name__ == "__main__":
                 preprocessed_data_output.append([distance])#yes it needs to be a nested list/array
             #end with
         #end for
+        print("distance dict = ", distance_dict)
         data_input = torch.tensor(preprocessed_data_input,dtype=torch.float)
         data_output = torch.tensor(preprocessed_data_output,dtype=torch.float)
         preprocessed_torch_dataset = TensorDataset(data_input,data_output)
@@ -172,3 +181,5 @@ if __name__ == "__main__":
     trained_NN_model = train_NN(preprocessed_torch_dataset, num_GP_features = feature_size, hidden_dim_size = HIDDEN_DIM_SIZE)
     #---now save the NN
     torch.save(trained_NN_model,trained_model_location)
+    loaded_model  = torch.load(trained_model_location)
+    print(loaded_model)

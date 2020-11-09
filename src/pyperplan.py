@@ -288,6 +288,7 @@ def main():
 
 
 if __name__ == "__main__":
+    from heuristics.GenPlan_HeuristicSupport.Gripper_GPfeatures_NN import GP_NN_heuristic_model_class
     import sys
     sys.argv.extend(['--heuristic', "gpfeatures"])
     sys.argv.extend(['--search', "gbf"])

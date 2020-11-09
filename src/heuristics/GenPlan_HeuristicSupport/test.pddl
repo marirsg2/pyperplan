@@ -2,9 +2,9 @@
 (:domain gripper-strips)
 (:objects
   robot1   - robot
-  rgripper1 lgripper1   - gripper
-  room25 room8 room13 room20 room7 room51   - room
-  ball4 ball2 ball1 ball5 ball3   - ball
+  lgripper1 rgripper1   - gripper
+  room8 room13 room51 room20 room7 room25   - room
+  ball2 ball5 ball4 ball3 ball1   - ball
 )
 (:init
 (at-robby robot1 room20)
