@@ -17,7 +17,7 @@ We preprocess this training data into vector of general features, and the target
 The inference process would be the heuristic fed to the pyperplan
 """
 
-NUM_EPOCHS = 2
+NUM_EPOCHS = 100
 BATCH_SIZE = 32
 BATCH_LOG_INTERVAL = 100
 HIDDEN_DIM_SIZE = 500
@@ -27,11 +27,11 @@ lisp_feature_gen_base_folder = home_dir +"/workspace/deepplan/dist"
 relative_location_problem_and_feature_files = "planning/sayphi/domains/gripper/probsets"
 target_domain_name = "gripper" #should match folder name in the lisp program directory
 lisp_input_file = "./test.pddl"
-train_data_file = "../GenPlan_data/JPMC_GenPlan_gripper_multiSetting.p"
+train_data_file = "../GenPlan_data/JPMC_GenPlan_gripper_singleSetting_n1r5o5.p"
 preprocessed_data_save_file = train_data_file.replace(".p", "_preprocessed.p")
 # pickled_preprocessed_data = None # None # or its the save file preprocessed_data_save_file
 pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
-trained_model_location = "gripper_GP_NN_heuristic_weights.pt"
+trained_model_location = "gripper_GP_NN_heuristic_weights_single_setting.pt"
 
 
 #TODO !! suggest policy nx variant to Daniel and Vamsi. output = Probability of correct action. mimics the asnets, albeit one action at a time.

@@ -1,0 +1,32 @@
+============BFS ==============
+2020-11-11 19:12:32,520 INFO     using search: breadth_first_search
+2020-11-11 19:12:32,520 INFO     using heuristic: None
+2020-11-11 19:12:32,520 INFO     Parsing Domain /home/yochan-ubuntu19/workspace/pyperplan/benchmarks/gripper_MOD/gripper_domain.pddl
+2020-11-11 19:12:32,521 INFO     Parsing Problem /home/yochan-ubuntu19/workspace/pyperplan/benchmarks/gripper_MOD/gripper_problem.pddl
+2020-11-11 19:12:32,521 INFO     4 Predicates parsed
+2020-11-11 19:12:32,521 INFO     3 Actions parsed
+2020-11-11 19:12:32,521 INFO     13 Objects parsed
+2020-11-11 19:12:32,521 INFO     0 Constants parsed
+2020-11-11 19:12:32,521 INFO     Grounding start: gripper-1-5-5
+2020-11-11 19:12:32,523 INFO     Relevance analysis removed 0 facts
+2020-11-11 19:12:32,523 INFO     Grounding end: gripper-1-5-5
+2020-11-11 19:12:32,523 INFO     42 Variables created
+2020-11-11 19:12:32,523 INFO     120 Operators created
+2020-11-11 19:12:32,523 INFO     Search start: gripper-1-5-5
+2020-11-11 19:12:33,945 INFO     Goal reached. Start extraction of solution.
+2020-11-11 19:12:33,945 INFO     54156 Nodes expanded
+2020-11-11 19:12:33,963 INFO     Search end: gripper-1-5-5
+2020-11-11 19:12:33,963 INFO     Search time: 1.4
+2020-11-11 19:12:33,963 INFO     Plan length: 15
+2020-11-11 19:12:33,966 INFO     validate could not be found on the PATH so the plan can not be validated.
+
+Process finished with exit code 0
+=========================================================
+
+2020-11-12 06:10:47,247 INFO     Goal reached. Start extraction of solution.
+2020-11-12 06:10:47,247 INFO     195136 Nodes expanded
+2020-11-12 06:10:47,262 INFO     Search end: gripper-1-5-5
+2020-11-12 06:10:47,262 INFO     Search time: 4.6e+04
+2020-11-12 06:10:47,262 INFO     Plan length: 16
+
+=========================================================
