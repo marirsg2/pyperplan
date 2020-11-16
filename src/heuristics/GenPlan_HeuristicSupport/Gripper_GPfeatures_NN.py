@@ -16,8 +16,8 @@ We preprocess this training data into vector of general features, and the target
 
 The inference process would be the heuristic fed to the pyperplan
 """
-
-NUM_EPOCHS = 100
+EPSILON = 1e-20
+NUM_EPOCHS = 20
 BATCH_SIZE = 32
 BATCH_LOG_INTERVAL = 100
 HIDDEN_DIM_SIZE = 500
@@ -29,9 +29,10 @@ target_domain_name = "gripper" #should match folder name in the lisp program dir
 lisp_input_file = "./test.pddl"
 train_data_file = "../GenPlan_data/JPMC_GenPlan_gripper_singleSetting_n1r5o5.p"
 preprocessed_data_save_file = train_data_file.replace(".p", "_preprocessed.p")
-# pickled_preprocessed_data = None # None # or its the save file preprocessed_data_save_file
-pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
+pickled_preprocessed_data = None # None # or its the save file preprocessed_data_save_file
+# pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
 trained_model_location = "gripper_GP_NN_heuristic_weights_single_setting.pt"
+
 
 
 #TODO !! suggest policy nx variant to Daniel and Vamsi. output = Probability of correct action. mimics the asnets, albeit one action at a time.
@@ -54,7 +55,11 @@ class GP_NN_heuristic_model_class(torch.nn.Module):
         a Tensor of output data. We can use Modules defined in the constructor as
         well as arbitrary operators on Tensors.
         """
+        # print(x)
         h_relu = F.relu(self.linear1(x))
+        # print(self.linear1(x))
+        # print("===================")
+        # print(h_relu)
         h_relu = F.relu(self.linear2(h_relu))
         h_relu = F.relu(self.linear3(h_relu))
         y_pred = F.relu(self.linear4(h_relu))
@@ -65,7 +70,7 @@ class GP_NN_heuristic_model_class(torch.nn.Module):
 def train_NN(train_torch_dataset, num_GP_features =100, hidden_dim_size = 50):
     NN_model = GP_NN_heuristic_model_class(num_GP_features, hidden_dim_size)
     criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.SGD(NN_model.parameters(), lr=0.00001)
+    optimizer = torch.optim.SGD(NN_model.parameters(), lr=0.000001)
     optimizer.zero_grad()
     params = {'batch_size': BATCH_SIZE,
               'shuffle': True,
@@ -133,7 +138,11 @@ if __name__ == "__main__":
         prev_state_feat = np.zeros(feature_size)
         max_distance = 0.0
         distance_dict = {}
+
         for state,goal,distance in raw_data:
+            # print("ENSURE YOU HAVE REMOVED THE LIMITATION ON THE RAW DATA ")
+            # print("ENSURE YOU HAVE REMOVED THE LIMITATION ON THE RAW DATA ")
+            # print("ENSURE YOU HAVE REMOVED THE LIMITATION ON THE RAW DATA ")
             if distance > max_distance:
                 print("new max distance =", distance)
                 max_distance = distance
@@ -141,6 +150,8 @@ if __name__ == "__main__":
                 distance_dict[distance] += 1
             except KeyError:
                 distance_dict[distance] = 1
+
+            # distance = 5 #todo remove this, purely for testing
             convert_to_gripper_problem_file(state,goal,lisp_input_file)
             os.system("cp "+lisp_input_file + " " + lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files)
             # now call the lisp program to get the features, and save <features,distance>
@@ -166,13 +177,25 @@ if __name__ == "__main__":
         #end for
         print("distance dict = ", distance_dict)
         data_input = torch.tensor(preprocessed_data_input,dtype=torch.float)
+        input_mean = torch.mean(data_input,0)
+        input_std = torch.std(data_input,0)+EPSILON
+        data_input = (data_input-input_mean)/input_std
+        # input_max = torch.max(data_input,0)[0]
+        # input_min = torch.min(data_input,0)[0]
         data_output = torch.tensor(preprocessed_data_output,dtype=torch.float)
+        output_mean = torch.mean(data_output)
+        output_std = torch.std(data_output)
+        data_output = (data_output - output_mean) / output_std
         preprocessed_torch_dataset = TensorDataset(data_input,data_output)
 
 
-        #--now we have the training data in the right format
+        #--now we have the training data in the right format, save with the mean and std dev for later inference
         with open(preprocessed_data_save_file, "wb") as dest:
             pickle.dump(preprocessed_torch_dataset, dest)
+            pickle.dump(input_mean,dest)
+            pickle.dump(input_std,dest)
+            pickle.dump(output_mean, dest)
+            pickle.dump(output_std, dest)
         print("finished preprocessing data")
 
     #end else - for preparing the preprocessed data

@@ -3,7 +3,7 @@
   (:types robot room ball gripper - object)
   (:predicates (at-robby ?r - robot ?ro - room)
 	       (at ?b - ball ?r - room)
-	       (free ?g - gripper ?r - robot)
+	       (free ?r - robot ?g - gripper)
 	       (carry ?b - ball ?g - gripper))
 
   (:action move

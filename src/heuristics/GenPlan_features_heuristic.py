@@ -9,12 +9,13 @@ Landmarks Heuristic
 import torch
 import os
 import csv
+import pickle
 import numpy as np
 from heuristics.GenPlan_HeuristicSupport.PDDL_util_func import *
 from heuristics.heuristic_base import Heuristic
 from heuristics.GenPlan_HeuristicSupport.Gripper_GPfeatures_NN import \
         domain_name, trained_model_location, lisp_input_file,lisp_feature_gen_base_folder,\
-        relative_location_problem_and_feature_files
+        relative_location_problem_and_feature_files,preprocessed_data_save_file
 
 # The following line is because the cwd from which this file is called is the src directory
 trained_model_location = "./heuristics/GenPlan_HeuristicSupport/" + trained_model_location
@@ -26,8 +27,16 @@ def compute_NN_wGPF_heuristic(state_frozen_set_proposition_strings,goal_frozen_s
     # not find the NN class even if you import it here. strange.
     nn_model = torch.load(trained_model_location)
     nn_model.eval()
+    #get the normalization information
+    with open(preprocessed_data_save_file,'rb') as src:
+        _ = pickle.load(src)
+        input_mean = pickle.dump(src)
+        input_std = pickle.dump(src)
+        output_mean = pickle.dump( src)
+        output_std = pickle.dump( src)
+
     #todo we repeat the model loading too often, load and save in the heuristics class !!
-    #make the problem file and store in the sayphi / gripper folder where the lisp program is
+    #next here we make the problem file and store in the sayphi / gripper folder where the lisp program is
     # get the state and recover the encoding like you did for training the NN
     convert_searchNode_to_gripper_problem_file(state_frozen_set_proposition_strings, goal_frozen_set_proposition_strings, lisp_input_file)
     # copy this file to the target location for lisp feat gen to read
