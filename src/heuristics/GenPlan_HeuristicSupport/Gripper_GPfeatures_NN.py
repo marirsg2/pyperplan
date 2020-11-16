@@ -29,8 +29,8 @@ target_domain_name = "gripper" #should match folder name in the lisp program dir
 lisp_input_file = "./test.pddl"
 train_data_file = "../GenPlan_data/JPMC_GenPlan_gripper_singleSetting_n1r5o5.p"
 preprocessed_data_save_file = train_data_file.replace(".p", "_preprocessed.p")
-pickled_preprocessed_data = None # None # or its the save file preprocessed_data_save_file
-# pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
+# pickled_preprocessed_data = None # None # or its the save file preprocessed_data_save_file
+pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
 trained_model_location = "gripper_GP_NN_heuristic_weights_single_setting.pt"
 
 
@@ -70,7 +70,7 @@ class GP_NN_heuristic_model_class(torch.nn.Module):
 def train_NN(train_torch_dataset, num_GP_features =100, hidden_dim_size = 50):
     NN_model = GP_NN_heuristic_model_class(num_GP_features, hidden_dim_size)
     criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.SGD(NN_model.parameters(), lr=0.000001)
+    optimizer = torch.optim.SGD(NN_model.parameters(), lr=0.0001)
     optimizer.zero_grad()
     params = {'batch_size': BATCH_SIZE,
               'shuffle': True,
@@ -183,9 +183,11 @@ if __name__ == "__main__":
         # input_max = torch.max(data_input,0)[0]
         # input_min = torch.min(data_input,0)[0]
         data_output = torch.tensor(preprocessed_data_output,dtype=torch.float)
-        output_mean = torch.mean(data_output)
-        output_std = torch.std(data_output)
-        data_output = (data_output - output_mean) / output_std
+        # output_mean = torch.mean(data_output)
+        output_mean = 0.0
+        # output_std = torch.std(data_output)
+        output_std = 1
+        # data_output = (data_output - output_mean) / output_std
         preprocessed_torch_dataset = TensorDataset(data_input,data_output)
 
 

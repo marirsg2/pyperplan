@@ -19,6 +19,7 @@ from heuristics.GenPlan_HeuristicSupport.Gripper_GPfeatures_NN import \
 
 # The following line is because the cwd from which this file is called is the src directory
 trained_model_location = "./heuristics/GenPlan_HeuristicSupport/" + trained_model_location
+preprocessed_data_save_file = "./heuristics/GenPlan_HeuristicSupport/" + preprocessed_data_save_file
 
 def compute_NN_wGPF_heuristic(state_frozen_set_proposition_strings,goal_frozen_set_proposition_strings):
     cwd = os.getcwd()
@@ -30,10 +31,10 @@ def compute_NN_wGPF_heuristic(state_frozen_set_proposition_strings,goal_frozen_s
     #get the normalization information
     with open(preprocessed_data_save_file,'rb') as src:
         _ = pickle.load(src)
-        input_mean = pickle.dump(src)
-        input_std = pickle.dump(src)
-        output_mean = pickle.dump( src)
-        output_std = pickle.dump( src)
+        input_mean = pickle.load(src)
+        input_std = pickle.load(src)
+        output_mean = pickle.load( src)
+        output_std = pickle.load( src)
 
     #todo we repeat the model loading too often, load and save in the heuristics class !!
     #next here we make the problem file and store in the sayphi / gripper folder where the lisp program is
@@ -52,9 +53,9 @@ def compute_NN_wGPF_heuristic(state_frozen_set_proposition_strings,goal_frozen_s
     with open(result_features_loc, newline='') as csvfile:
         feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
         state_features = [int(x) for x in feature_reader.__next__()]
-    data_input = torch.tensor([state_features],dtype=torch.float)
-    distance = nn_model.forward(data_input)
-    return float(distance.data[0][0])
+    data_input = (torch.tensor([state_features],dtype=torch.float)-input_mean)/input_std
+    distance = nn_model.forward(data_input).data[0][0]*output_std + output_mean
+    return float(distance)
 
 
 
