@@ -27,11 +27,11 @@ lisp_feature_gen_base_folder = home_dir +"/workspace/deepplan/dist"
 relative_location_problem_and_feature_files = "planning/sayphi/domains/gripper/probsets"
 target_domain_name = "gripper" #should match folder name in the lisp program directory
 lisp_input_file = "./test.pddl"
-train_data_file = "../GenPlan_data/JPMC_GenPlan_gripper_singleSetting_n1r5o5.p"
+train_data_file = "../GenPlan_data/JPMC_GenPlan_gripper_singleSetting_varyRoomsBalls_40k.p"
 preprocessed_data_save_file = train_data_file.replace(".p", "_preprocessed.p")
-# pickled_preprocessed_data = None # None # or its the save file preprocessed_data_save_file
-pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
-trained_model_location = "gripper_GP_NN_heuristic_weights_single_setting.pt"
+pickled_preprocessed_data = None # None # or its the save file preprocessed_data_save_file
+# pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
+trained_model_location = "gripper_GP_NN_heuristic_weights_multi_setting_VaryRoomBall.pt"
 
 
 
@@ -116,7 +116,7 @@ if __name__ == "__main__":
         os.chdir(cwd)
 
         #get the feature size --this is ugly but prevents repetitive checks or reassignments to feature size
-        state, goal, distance = raw_data[1]
+        state, goal, distance = list(raw_data)[1]
         # prepare to call the lisp program to get the features
         convert_to_gripper_problem_file(state, goal, lisp_input_file)
         #copy this file to the target location for lisp feat gen to read
@@ -138,7 +138,7 @@ if __name__ == "__main__":
         prev_state_feat = np.zeros(feature_size)
         max_distance = 0.0
         distance_dict = {}
-
+        print("feature_size = ",feature_size)
         for state,goal,distance in raw_data:
             # print("ENSURE YOU HAVE REMOVED THE LIMITATION ON THE RAW DATA ")
             # print("ENSURE YOU HAVE REMOVED THE LIMITATION ON THE RAW DATA ")
@@ -201,6 +201,7 @@ if __name__ == "__main__":
         print("finished preprocessing data")
 
     #end else - for preparing the preprocessed data
+    print("num train data = ", preprocessed_torch_dataset.tensors[1].shape)
 
     #todo get dim size based on lisp program feedback, set as feature size
     trained_NN_model = train_NN(preprocessed_torch_dataset, num_GP_features = feature_size, hidden_dim_size = HIDDEN_DIM_SIZE)
@@ -208,3 +209,4 @@ if __name__ == "__main__":
     torch.save(trained_NN_model,trained_model_location)
     loaded_model  = torch.load(trained_model_location)
     print(loaded_model)
+    print("num train data = ", preprocessed_torch_dataset.tensors[1].shape)

@@ -1,0 +1,17 @@
+0) Round up (ceiling) of the heuristic
+
+0.5) get lama-first
+
+
+1) 20-30 fixed set of problems
+     i) 2 rooms, large number of balls
+     ii) goals with all balls in one room
+     iii) 13 balls
+     iv) use generator / see if IPC problems are compatible
+
+2) Blocksworld (training data generator)
+
+3) Do not normalize boolean variables
+
+4) Daniel - lisp socket communication.
+    send pddl as string. receive csv data

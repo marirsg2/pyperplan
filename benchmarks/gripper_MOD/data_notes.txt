@@ -1,0 +1,45 @@
+size rb1r10o10
+    hff with gbf
+    2020-11-24 14:05:54,980 INFO     63 Nodes expanded
+    2020-11-24 14:05:54,980 INFO     Search end: gripper-1-5-5
+    2020-11-24 14:05:54,980 INFO     Search time: 0.83
+    2020-11-24 14:05:54,980 INFO     Plan length: 34
+    2020-11-24 14:05:54,982 INFO     validate could not be found on the PATH so the plan can not be validated.
+
+  lmcut with gbf
+  2020-11-24 09:25:08,995 INFO     Initial h value: 29.000000
+    2020-11-24 09:25:16,609 INFO     Goal reached. Start extraction of solution.
+    2020-11-24 09:25:16,609 INFO     79 Nodes expanded
+    2020-11-24 09:25:16,609 INFO     Search end: gripper-1-5-5
+    2020-11-24 09:25:16,609 INFO     Search time: 7.6
+    2020-11-24 09:25:16,609 INFO     Plan length: 35
+
+    general features with gbf
+    2020-11-24 09:36:38,298 INFO     Goal reached. Start extraction of solution.
+    2020-11-24 09:36:38,298 INFO     148 Nodes expanded
+    2020-11-24 09:36:38,298 INFO     Search end: gripper-1-5-5
+    2020-11-24 09:36:38,298 INFO     Search time: 1.7e+02
+    2020-11-24 09:36:38,299 INFO     Plan length: 34
+
+    updated general features (11/22/2020) with gbf
+    2020-11-24 10:42:50,767 INFO     Goal reached. Start extraction of solution.
+    2020-11-24 10:42:50,767 INFO     84 Nodes expanded
+    2020-11-24 10:42:50,768 INFO     Search end: gripper-1-5-5
+    2020-11-24 10:42:50,768 INFO     Search time: 1.1e+02
+    2020-11-24 10:42:50,768 INFO     Plan length: 34
+    2020-11-24 10:42:50,772 INFO     validate could not be found on the PATH so the plan can not be validated.
+============================================================================
+
+2020-11-24 14:15:05,926 INFO     Goal reached. Start extraction of solution.
+2020-11-24 14:15:05,926 INFO     71 Nodes expanded
+2020-11-24 14:15:05,927 INFO     Search end: gripper-1-5-5
+2020-11-24 14:15:05,927 INFO     Search time: 0.85
+2020-11-24 14:15:05,927 INFO     Plan length: 32
+2020-11-24 14:15:05,929 INFO     validate could not be found on the PATH so the plan can not be validated.
+
+2020-11-24 14:19:01,095 INFO     Goal reached. Start extraction of solution.
+2020-11-24 14:19:01,095 INFO     93 Nodes expanded
+2020-11-24 14:19:01,095 INFO     Search end: gripper-1-5-5
+2020-11-24 14:19:01,095 INFO     Search time: 1.1e+02
+2020-11-24 14:19:01,095 INFO     Plan length: 33
+2020-11-24 14:19:01,100 INFO     validate could not be found on the PATH so the plan can not be validated.
