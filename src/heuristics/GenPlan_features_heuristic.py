@@ -55,7 +55,7 @@ def compute_NN_wGPF_heuristic(state_frozen_set_proposition_strings,goal_frozen_s
         state_features = [int(x) for x in feature_reader.__next__()]
     data_input = (torch.tensor([state_features],dtype=torch.float)-input_mean)/input_std
     distance = nn_model.forward(data_input).data[0][0]*output_std + output_mean
-    return float(distance)
+    return int(distance) + 1 #rounding up
 
 
 

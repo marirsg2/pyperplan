@@ -1,13 +1,35 @@
-0) Round up (ceiling) of the heuristic
-
-0.5) get lama-first
-
-
+NEXT:
 1) 20-30 fixed set of problems
      i) 2 rooms, large number of balls
      ii) goals with all balls in one room
      iii) 13 balls
+     DEFINITELY USE THE GENERATOR, the template code can be reused and will save a lot of time later. 
      iv) use generator / see if IPC problems are compatible
+
+===========================================================
+0) Round up (ceiling) of the heuristic - DONE
+
+0.5) get lama-first - maybe get initial heuristic from FDownward - PROGRESS , INCOMPLETE
+  example : [t=0.00190586s, 10068 KB] Initial heuristic value for lmcut: 16
+
+in Learning Domain-Independent Planning Heuristics with Hypergraph Networks
+    they test hmax hadd lmcut and blind, can pull this from fastdownward, or rather can just use the output from fastdownward !
+    I dont see lama-first ?? where did we get that ?
+
+  but in FD they have seq-sat-lama-2011 which prints
+
+  [t=0.00293424s, 10328 KB] 6 initial landmarks, 5 goal landmarks
+[t=0.00298107s, 10328 KB] New best heuristic value for lmcount(lm_rhw(reasonable_orders = true), pref = true): 11
+[t=0.00300156s, 10328 KB] New best heuristic value for ff: 11
+[t=0.00301644s, 10328 KB] g=0, 1 evaluated, 0 expanded
+[t=0.00303799s, 10328 KB] Initial heuristic value for lmcount(lm_rhw(reasonable_orders = true), pref = true): 11
+[t=0.003053s, 10328 KB] Initial heuristic value for ff: 11
+[t=0.00312223s, 10328 KB] New best heuristic value for lmcount(lm_rhw(reasonable_orders = true), pref = true): 10
+[t=0.00314025s, 10328 KB] New best heuristic value for ff: 10
+[t=0.00315502s, 10328 KB] g=1, 6 evaluated, 5 expanded
+
+
+
 
 2) Blocksworld (training data generator)
 
