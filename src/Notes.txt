@@ -2,9 +2,13 @@ NEXT:
 
 3) Do not normalize boolean variables
 
-QUESTION: in Learning Domain-Independent Planning Heuristics with Hypergraph Networks
-    they test hmax hadd lmcut and blind, can pull this from fastdownward, or rather can just use the output from fastdownward !
-    I dont see lama-first ?? where did we get that ?
+REMOVE features that do not change, per domain.
+
+5 min timeout - like in sylvie paper
+
+Sylvie compares with pyperplan's
+mcut', 'gpfeatures', 'landmark', 'blind', 'hadd', 'hff', 'hmax', 'hsa')
+SEE their paper graph and pick those features
 
 ===========================================================
 0) Round up (ceiling) of the heuristic - DONE
@@ -20,7 +24,8 @@ QUESTION: in Learning Domain-Independent Planning Heuristics with Hypergraph Net
      iv) use generator / see if IPC problems are compatible
 
 
-4) Blocksworld (training data generator)
+4) Blocksworld (training data generator)\
+
 
 5) Daniel - lisp socket communication.
     send pddl as string. receive csv data

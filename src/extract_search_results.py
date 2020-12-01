@@ -26,7 +26,7 @@ import os
 
 
 FdSolutions = "../Data_storage/v1_GripperFDSolutionSet"
-PyperPlanSolutions  = "../Data_storage/SimplerProblems_v1_Gripper_GenFeat_solution_set"
+PyperPlanSolutions  = "../Data_storage/set1_v1_Gripper_GenFeat_solution_set"
 # all_solution_folders = [PyperPlanSolutions]
 all_solution_folders = [FdSolutions,PyperPlanSolutions]
 idx_to_planner_name_dict = {0:"Fastdownward",1:"PyP_GenFeatures"}
@@ -81,7 +81,11 @@ for solution_folder_idx in range(len(all_solution_folders)):
         problem_solution_dict[problem_name][planner_name]["length"] = plan_length
     #-end for loop through solution files
 #-end for loop through solution folders
-print(problem_solution_dict)
+# print(problem_solution_dict)
+for problem in problem_solution_dict.keys():
+    for planner_name in problem_solution_dict[problem].keys():
+        print(problem, planner_name , problem_solution_dict[problem][planner_name])
+    print("-------------")
 
 
 

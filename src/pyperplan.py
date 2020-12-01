@@ -292,8 +292,8 @@ if __name__ == "__main__":
     import sys
     # sys.argv.extend(['--heuristic', "gpfeatures"])
     # sys.argv.extend(['--heuristic', "hff"])
-    # sys.argv.extend(['--heuristic', "lmcut"])
-    sys.argv.extend(['--search', "gbf"])
+    sys.argv.extend(['--heuristic', "lmcasd"])
+    # sys.argv.extend(['--search', "gbf"])
 
     # sys.argv.extend(['--search', "astar"])
     # sys.argv.extend(['--search', "bfs"])
