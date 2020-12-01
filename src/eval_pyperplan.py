@@ -314,7 +314,7 @@ if __name__ == "__main__":
         prev_file = sys.stdout
         sys.stdout = open(solution_file_path, "w")
         sys.argv = [sys.argv[0]]
-        # sys.argv.extend(['--heuristic', "gpfeatures"])
+        sys.argv.extend(['--heuristic', "gpfeatures"])
         # sys.argv.extend(['--heuristic', "hff"])
         # sys.argv.extend(['--heuristic', "lmcut"])
         sys.argv.extend(['--search', "gbf"])
@@ -327,15 +327,3 @@ if __name__ == "__main__":
 
 
 
-        # with open(solution_file_path, 'w') as dest_file:
-        #     with redirect_stdout(dest_file):
-        #
-        #         sys.argv = [sys.argv[0]]
-        #         # sys.argv.extend(['--heuristic', "gpfeatures"])
-        #         # sys.argv.extend(['--heuristic', "hff"])
-        #         # sys.argv.extend(['--heuristic', "lmcut"])
-        #         sys.argv.extend(['--search', "gbf"])
-        #         # sys.argv.extend(['--search', "astar"])
-        #         # sys.argv.extend(['--search', "bfs"])
-        #         sys.argv.extend(["../benchmarks/gripper_MOD/gripper_domain.pddl", problem_file_path])
-        #         main()
