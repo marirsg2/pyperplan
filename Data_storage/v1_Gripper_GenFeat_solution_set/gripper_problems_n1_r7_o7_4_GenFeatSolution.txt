@@ -1,0 +1,21 @@
+2020-11-30 18:17:30,296 INFO     using search: greedy_best_first_search
+2020-11-30 18:17:30,296 INFO     using heuristic: hFFHeuristic
+2020-11-30 18:17:30,296 INFO     Parsing Domain /home/yochan-ubuntu19/workspace/pyperplan/benchmarks/gripper_MOD/gripper_domain.pddl
+2020-11-30 18:17:30,296 INFO     Parsing Problem /home/yochan-ubuntu19/workspace/pyperplan/benchmarks/gripper_MOD/v1_GripperProblemSet/gripper_problems_n1_r7_o7_4.pddl
+2020-11-30 18:17:30,297 INFO     4 Predicates parsed
+2020-11-30 18:17:30,297 INFO     3 Actions parsed
+2020-11-30 18:17:30,297 INFO     17 Objects parsed
+2020-11-30 18:17:30,297 INFO     0 Constants parsed
+2020-11-30 18:17:30,297 INFO     Grounding start: gripper-1-7-7
+2020-11-30 18:17:30,300 INFO     Relevance analysis removed 0 facts
+2020-11-30 18:17:30,300 INFO     Grounding end: gripper-1-7-7
+2020-11-30 18:17:30,300 INFO     72 Variables created
+2020-11-30 18:17:30,300 INFO     238 Operators created
+2020-11-30 18:17:30,300 INFO     Search start: gripper-1-7-7
+2020-11-30 18:17:30,301 INFO     Initial h value: 12.000000
+2020-11-30 18:17:30,373 INFO     Goal reached. Start extraction of solution.
+2020-11-30 18:17:30,373 INFO     22 Nodes expanded
+2020-11-30 18:17:30,373 INFO     Search end: gripper-1-7-7
+2020-11-30 18:17:30,373 INFO     Search time: 0.073
+2020-11-30 18:17:30,373 INFO     Plan length: 15
+2020-11-30 18:17:30,376 INFO     validate could not be found on the PATH so the plan can not be validated.

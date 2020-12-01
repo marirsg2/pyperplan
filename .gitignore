@@ -10,3 +10,5 @@ src/pyperplan.egg-info/
 .idea/
 
 src/heuristics/GenPlan_data/JPMC_GenPlan_gripper_multiSetting_preprocessed_v2.p
+
+*.soln
