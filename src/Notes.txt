@@ -1,14 +1,20 @@
 NEXT:
 
+NEED TIMEOUT !!
+
+Sylvie compares with pyperplan's
+mcut', 'gpfeatures', 'landmark', 'blind', 'hadd', 'hff', 'hmax', 'hsa')
+SEE their paper graph and pick those features
+
+adapt script to extract and print those data, put to CSV FILE
+
 3) Do not normalize boolean variables
 
 REMOVE features that do not change, per domain.
 
 5 min timeout - like in sylvie paper
 
-Sylvie compares with pyperplan's
-mcut', 'gpfeatures', 'landmark', 'blind', 'hadd', 'hff', 'hmax', 'hsa')
-SEE their paper graph and pick those features
+
 
 ===========================================================
 0) Round up (ceiling) of the heuristic - DONE

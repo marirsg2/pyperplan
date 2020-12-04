@@ -26,6 +26,8 @@ import re
 import subprocess
 import sys
 import time
+import multiprocessing
+
 
 import grounding
 import heuristics
@@ -290,12 +292,43 @@ def main():
         validate_solution(args.domain, args.problem, solution_file)
 
 
-if __name__ == "__main__":
-    from heuristics.GenPlan_HeuristicSupport.Gripper_GPfeatures_NN import GP_NN_heuristic_model_class
-    problem_folder = "../benchmarks/gripper_MOD/v1_GripperProblemSet"
-    solutions_folder = "../Data_storage/v1_Gripper_GenFeat_solution_set"
+#===============================================================
+def run_single_problem_planning_with_heuristic(heuristic,filename,problem_folder,solutions_folder,timeout):
+    """
 
-    #clear solutions folder
+    """
+    problem_file_path = os.path.join(problem_folder, filename)
+    solution_file_path = solutions_folder + "/" + filename.replace(".pddl", "_GenFeatSolution.txt")
+    prev_file = sys.stdout
+    sys.stdout = open(solution_file_path, "w")
+    sys.argv = [sys.argv[0]]
+    sys.argv.extend(['--heuristic', heuristic])
+    sys.argv.extend(['--search', "gbf"])
+    # sys.argv.extend(['--search', "astar"])
+    # sys.argv.extend(['--search', "bfs"])
+    sys.argv.extend(["../benchmarks/gripper_MOD/gripper_domain.pddl", problem_file_path])
+    main()
+    os.close(sys.stdout.fileno())
+    sys.stdout = prev_file
+    print("Timeout for planning = ",timeout)
+
+
+#===============================================================
+def run_planning_with_heuristic(heuristic,timeout):
+    """
+
+    """
+    print("running heuristic = ", heuristic)
+    problem_folder = "../benchmarks/gripper_MOD/v1_GripperProblemSet"
+    # ----
+    # solutions_folder = "../Data_storage/v1_Gripper_GenFeat_solution_set"
+    solutions_folder = "../Data_storage/v1_Gripper_GenFeat_solution_set"
+    solutions_folder += "_" + heuristic
+    try:
+        os.mkdir(solutions_folder)
+    except:
+        pass
+    # clear solutions folder
     for filename in os.listdir(solutions_folder):
         file_path = os.path.join(solutions_folder, filename)
         try:
@@ -309,21 +342,31 @@ if __name__ == "__main__":
     for filename in os.listdir(problem_folder):
         if not filename.endswith(".pddl"):
             continue
-        problem_file_path = os.path.join(problem_folder, filename)
-        solution_file_path = solutions_folder + "/" + filename.replace(".pddl","_GenFeatSolution.txt")
-        prev_file = sys.stdout
-        sys.stdout = open(solution_file_path, "w")
-        sys.argv = [sys.argv[0]]
-        sys.argv.extend(['--heuristic', "gpfeatures"])
-        # sys.argv.extend(['--heuristic', "hff"])
-        # sys.argv.extend(['--heuristic', "lmcut"])
-        sys.argv.extend(['--search', "gbf"])
-        # sys.argv.extend(['--search', "astar"])
-        # sys.argv.extend(['--search', "bfs"])
-        sys.argv.extend(["../benchmarks/gripper_MOD/gripper_domain.pddl", problem_file_path])
-        main()
-        os.close(sys.stdout.fileno())
-        sys.stdout = prev_file
+        p = multiprocessing.Process(target=run_single_problem_planning_with_heuristic,
+                                        args=(heuristic,filename,problem_folder,solutions_folder,timeout) )
+        p.start()
+        # Wait for 10 seconds or until process finishes
+        p.join(timeout)
+        # If thread is still active
+        if p.is_alive():
+            print(heuristic, " did not finish in ", timeout, " solution not found")
+            p.kill()
+            p.join()
+
+#====================================================
+
+if __name__ == "__main__":
+    timeout = 5*60 #seconds
+    # heuristic_list = ["landmark","hadd","hff", "hmax", "hsa","gpfeatures","blind"]
+    # heuristic_list = ["hsa","gpfeatures"]
+    # heuristic_list = ["landmark","hff"]
+    heuristic_list = [ "hmax","blind"]
+    for heuristic in heuristic_list:
+        run_planning_with_heuristic(heuristic,timeout)
+
+
+
+
 
 
 
