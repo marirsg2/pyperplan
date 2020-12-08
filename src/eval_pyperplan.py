@@ -358,9 +358,9 @@ def run_planning_with_heuristic(heuristic,timeout):
 if __name__ == "__main__":
     timeout = 5*60 #seconds
     # heuristic_list = ["landmark","hadd","hff", "hmax", "hsa","gpfeatures","blind"]
-    # heuristic_list = ["hsa","gpfeatures"]
+    heuristic_list = ["hsa","gpfeatures"]
     # heuristic_list = ["landmark","hff"]
-    heuristic_list = [ "hmax","blind"]
+    # heuristic_list = [ "hmax","blind"]
     for heuristic in heuristic_list:
         run_planning_with_heuristic(heuristic,timeout)
 

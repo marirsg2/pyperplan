@@ -9,6 +9,14 @@ src/pyperplan.egg-info/
 
 .idea/
 
+Data_storage/
+
 src/heuristics/GenPlan_data/JPMC_GenPlan_gripper_multiSetting_preprocessed_v2.p
 
 *.soln
+
+benchmarks/gripper_MOD/FULL_v1_GripperProblemSet/
+
+benchmarks/gripper_MOD/OLD_FULL_v1_GripperProblemSet/
+
+benchmarks/gripper_MOD/v1_GripperProblemSet/
