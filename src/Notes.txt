@@ -1,37 +1,17 @@
 NEXT:
 
-NEED TIMEOUT !!
+send pddl as string. receive csv data - IN PROGRESS
 
-Sylvie compares with pyperplan's
-mcut', 'gpfeatures', 'landmark', 'blind', 'hadd', 'hff', 'hmax', 'hsa')
-SEE their paper graph and pick those features
+Blocksworld (training data generator)
+
+other domains - training data and problem set
+
+===========================================================
 
 adapt script to extract and print those data, put to CSV FILE
 
-3) Do not normalize boolean variables
+Do not normalize boolean variables
 
 REMOVE features that do not change, per domain.
 
-5 min timeout - like in sylvie paper
 
-
-
-===========================================================
-0) Round up (ceiling) of the heuristic - DONE
-
-0.5) get lama-first - maybe get initial heuristic from FDownward - DONE
-    using results from FastDownward
-
-1) 20-30 fixed set of problems - DONE
-     i) 2 rooms, large number of balls
-     ii) goals with all balls in one room
-     iii) 13 balls
-     DEFINITELY USE THE GENERATOR, the template code can be reused and will save a lot of time later.
-     iv) use generator / see if IPC problems are compatible
-
-
-4) Blocksworld (training data generator)\
-
-
-5) Daniel - lisp socket communication.
-    send pddl as string. receive csv data

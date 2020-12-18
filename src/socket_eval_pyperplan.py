@@ -27,7 +27,7 @@ import subprocess
 import sys
 import time
 import multiprocessing
-
+import socket
 
 import grounding
 import heuristics
@@ -293,10 +293,13 @@ def main():
 
 
 #===============================================================
-def run_single_problem_planning_with_heuristic(heuristic,filename,problem_folder,solutions_folder,timeout):
+def run_single_problem_planning_with_heuristic(heuristic,filename,problem_folder,solutions_folder,timeout,input_clientsocket):
     """
 
     """
+    #NOTE: in a new python process, the global namespace is reset/new. So we need to set the clientsocket here are not earlier
+    global clientsocket
+    clientsocket = input_clientsocket
     problem_file_path = os.path.join(problem_folder, filename)
     solution_file_path = solutions_folder + "/" + filename.replace(".pddl", "_GenFeatSolution.txt")
     prev_file = sys.stdout
@@ -314,7 +317,7 @@ def run_single_problem_planning_with_heuristic(heuristic,filename,problem_folder
 
 
 #===============================================================
-def run_planning_with_heuristic(heuristic,timeout):
+def SOCKET_run_planning_with_heuristic(heuristic,timeout,clientsocket):
     """
 
     """
@@ -343,7 +346,7 @@ def run_planning_with_heuristic(heuristic,timeout):
         if not filename.endswith(".pddl"):
             continue
         p = multiprocessing.Process(target=run_single_problem_planning_with_heuristic,
-                                        args=(heuristic,filename,problem_folder,solutions_folder,timeout) )
+                                        args=(heuristic,filename,problem_folder,solutions_folder,timeout,clientsocket) )
         p.start()
         # Wait for 10 seconds or until process finishes
         p.join(timeout)
@@ -362,9 +365,22 @@ if __name__ == "__main__":
     heuristic_list = ["gpfeatures"]
     # heuristic_list = ["landmark","hff"]
     # heuristic_list = [ "hmax","blind"]
+    #-----------
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # "127.0.0.1"
+    s.bind(('localhost', 1800))
+    print('Starting')
+    s.listen(1)
+    print('  Waiting for client')
+    clientsocket, address = s.accept()
+    print(f"  Connection from {address} has been established.")
+    print('  Sending OK')
+    clientsocket.send(bytes("ok\n", "utf-8"))
+    print('  Sent OK')
+    #-----------
     for heuristic in heuristic_list:
         # timeout = 10 * 60  # seconds
-        run_planning_with_heuristic(heuristic,timeout)
+        SOCKET_run_planning_with_heuristic(heuristic,timeout,clientsocket)
 
 
 
