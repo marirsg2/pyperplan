@@ -57,9 +57,8 @@ def SOCKET_compute_NN_wGPF_heuristic(state_frozen_set_proposition_strings, goal_
     while not msg.endswith("\""):  # yup thats a lousy end char, but so it is
         msg += lisp_socket.recv(100000).decode("utf-8")
     print('  Received', msg)
-    state_features = [ int(x) for x in msg.replace('\"',"").replace(" ","").split(",") ]
 
-    #----old code
+
     # # copy this file to the target location for lisp feat gen to read
     # os.system("cp " + lisp_input_file + " " + lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files)
     # # now call the lisp program to get the features, and save <features,distance>
@@ -68,13 +67,11 @@ def SOCKET_compute_NN_wGPF_heuristic(state_frozen_set_proposition_strings, goal_
     # os.chdir(cwd)
     # now read the csv file containing the state description and convert to vector format and save
     # in "preprocessed_data"
-    # result_features_loc = lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files + "/state-deepplan.csv"
-    # state_features = []
-    # with open(result_features_loc, newline='') as csvfile:
-    #     feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
-    #     state_features = [int(x) for x in feature_reader.__next__()]
-    #-----old code
-
+    result_features_loc = lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files + "/state-deepplan.csv"
+    state_features = []
+    with open(result_features_loc, newline='') as csvfile:
+        feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
+        state_features = [int(x) for x in feature_reader.__next__()]
     data_input = (torch.tensor([state_features],dtype=torch.float)-input_mean)/input_std
     distance = nn_model.forward(data_input).data[0][0]*output_std + output_mean
     return int(distance) + 1 #rounding up
