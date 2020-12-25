@@ -24,7 +24,9 @@ def start_server ():
         clientsocket.send(bytes("(define (problem train5) (:domain blocksworld) (:objects a b - block) (:init (arm-empty) (clear b) (on-table a) (on b a)) (:goal (and (on a b))))\n", "utf-8"))
         print('  Problem sent')
         print('  Receiving new generalized state')
-        msg = clientsocket.recv(10000)
+        msg = clientsocket.recv(100000).decode("utf-8")
+        while not msg.endswith("\""): #yup thats a lousy end char, but so it is
+            msg += clientsocket.recv(100000).decode("utf-8")
         print('  Received', msg)
     clientsocket.close()
     return None
