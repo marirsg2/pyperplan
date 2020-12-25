@@ -132,6 +132,7 @@ if __name__ == "__main__":
             feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
             feature_size = len(feature_reader.__next__())
 
+
         preprocessed_data_input = []
         preprocessed_data_output = []
         curr_state_feat = np.zeros(feature_size)

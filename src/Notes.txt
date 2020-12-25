@@ -1,10 +1,6 @@
 NEXT:
 
-send pddl as string. receive csv data - IN PROGRESS
-
-Blocksworld (training data generator)
-
-other domains - training data and problem set
+Refactor the training data code to use the server as well
 
 ===========================================================
 
