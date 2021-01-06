@@ -392,6 +392,9 @@ if __name__ == "__main__":
     # "127.0.0.1"
     s.bind(('localhost', 1800))
     print('Starting')
+    print("********DOUBLE CHECK THE DOMAIN, ARE YOU USING THE RIGHT DOMAIN !!********")
+    print("IMPORTANT make sure you executed ./run-deepplan.sh gripper test.pddl")
+    print("REMEMBER TO START CLIENT FIRST, else you may have to restart computer")
     s.listen(1)
     print('  Waiting for client')
     clientsocket, address = s.accept()

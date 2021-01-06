@@ -399,7 +399,9 @@ if __name__ == "__main__":
     print('  Sending OK')
     clientsocket.send(bytes("ok\n", "utf-8"))
     print('  Sent OK')
+    print("********DOUBLE CHECK THE DOMAIN, ARE YOU USING THE RIGHT DOMAIN !!********")
     print("IMPORTANT make sure you executed /run-deepplan.sh gripper test.pddl ")
+    print("REMEMBER TO START CLIENT FIRST, else you may have to restart computer")
     #-----------
     for heuristic in heuristic_list:
         # timeout = 10 * 60  # seconds

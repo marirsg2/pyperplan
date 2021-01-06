@@ -1,5 +1,6 @@
 import os
 import csv
+import socket
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -98,6 +99,27 @@ def train_NN(train_torch_dataset, num_GP_features =100, hidden_dim_size = 50):
 
 
 if __name__ == "__main__":
+    print('Starting')
+    print("********DOUBLE CHECK THE DOMAIN, ARE YOU USING THE RIGHT DOMAIN !!********")
+    print("IMPORTANT make sure you executed ./run-deepplan.sh gripper test.pddl")
+    print("REMEMBER TO START CLIENT FIRST, else you may have to restart computer")
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # "127.0.0.1"
+    s.bind(('localhost', 1800))
+    s.listen(1)
+    print('  Waiting for client')
+    lisp_socket, address = s.accept()
+    print(f"  Connection from {address} has been established.")
+    print('  Sending OK')
+    lisp_socket.send(bytes("ok\n", "utf-8"))
+    print('  Sent OK')
+    print("IMPORTANT make sure you executed /run-deepplan.sh gripper test.pddl ")
+    #========================
+    # now use the socket comm
+
+
+    #========================
+
     preprocessed_torch_dataset = []
     feature_size = -1
     if pickled_preprocessed_data != None:
@@ -119,20 +141,34 @@ if __name__ == "__main__":
         state, goal, distance = list(raw_data)[1]
         # prepare to call the lisp program to get the features
         convert_to_gripper_problem_file(state, goal, lisp_input_file)
-        #copy this file to the target location for lisp feat gen to read
-        os.system("cp " + lisp_input_file + " " + lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files)
-        # now call the lisp program to get the features, and save <features,distance>
-        os.chdir(lisp_feature_gen_base_folder)
-        os.system(lisp_feature_gen_base_folder + "/run-deepplan.sh "+domain_name + " " + lisp_input_file)
-        os.chdir(cwd)
+        with open(lisp_input_file, "r") as src:
+            all_lines = src.readlines()
+            problem_file_desc = " ".join(
+                [x.replace("\n", "") for x in all_lines]) + "\n"  # the last new line is to end the descriptor
+        #---end with
+        # print('Sending problem = ', problem_file_desc)
+        lisp_socket.send(bytes(problem_file_desc, "utf-8"))
+        print('  Problem sent')
+        print('  Receiving new generalized state')
+        msg = lisp_socket.recv(100000).decode("utf-8")
+        while not msg.endswith("\""):  # yup thats a lousy end char, but so it is
+            msg += lisp_socket.recv(100000).decode("utf-8")
+        print('  Received', msg)
+        state_features = [int(x) for x in msg.replace('\"', "").replace(" ", "").split(",")]
+        feature_size = len(state_features)
+        # OLD VERSION #copy this file to the target location for lisp feat gen to read
+        # os.system("cp " + lisp_input_file + " " + lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files)
+        # # now call the lisp program to get the features, and save <features,distance>
+        # os.chdir(lisp_feature_gen_base_folder)
+        # os.system(lisp_feature_gen_base_folder + "/run-deepplan.sh "+domain_name + " " + lisp_input_file)
+        # os.chdir(cwd)
+        # result_features_loc = lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files + "/state-deepplan.csv"
+        # state_features = []
+        # with open(result_features_loc, newline='') as csvfile:
+        #     feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
+        #     feature_size = len(feature_reader.__next__())
+        #------end old version
         # get the feature size
-        result_features_loc = lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files + "/state-deepplan.csv"
-        state_features = []
-        with open(result_features_loc, newline='') as csvfile:
-            feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
-            feature_size = len(feature_reader.__next__())
-
-
         preprocessed_data_input = []
         preprocessed_data_output = []
         curr_state_feat = np.zeros(feature_size)
@@ -153,27 +189,28 @@ if __name__ == "__main__":
                 distance_dict[distance] = 1
 
             # distance = 5 #todo remove this, purely for testing
-            convert_to_gripper_problem_file(state,goal,lisp_input_file)
-            os.system("cp "+lisp_input_file + " " + lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files)
-            # now call the lisp program to get the features, and save <features,distance>
-            os.chdir(lisp_feature_gen_base_folder)
-            os.system(lisp_feature_gen_base_folder + "/run-deepplan.sh " + domain_name + " " + lisp_input_file)
-            os.chdir(cwd)
-            # now read the csv file containing the state description and convert to vector format and save
-            # in "preprocessed_data"
-            result_features_loc = lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files + "/state-deepplan.csv"
-            state_features = []
-            with open(result_features_loc, newline='') as csvfile:
-                feature_reader = csv.reader(csvfile, delimiter=',', quotechar='\'')
-                state_features = [int(x) for x in feature_reader.__next__()]
-                curr_state_feat = np.array(state_features)
-                diff = curr_state_feat - prev_state_feat
-                print(np.sum(diff))
-                prev_state_feat = curr_state_feat
-
-                #todo save as torch dataset, better for loading and shuffling
-                preprocessed_data_input.append(state_features)
-                preprocessed_data_output.append([distance])#yes it needs to be a nested list/array
+            convert_to_gripper_problem_file(state, goal, lisp_input_file)
+            with open(lisp_input_file, "r") as src:
+                all_lines = src.readlines()
+                problem_file_desc = " ".join(
+                    [x.replace("\n", "") for x in all_lines]) + "\n"  # the last new line is to end the descriptor
+            # ---end with
+            # print('Sending problem = ', problem_file_desc)
+            lisp_socket.send(bytes(problem_file_desc, "utf-8"))
+            print('  Problem sent')
+            print('  Receiving new generalized state')
+            msg = lisp_socket.recv(100000).decode("utf-8")
+            while not msg.endswith("\""):  # yup thats a lousy end char, but so it is
+                msg += lisp_socket.recv(100000).decode("utf-8")
+            print('  Received', msg)
+            state_features = [int(x) for x in msg.replace('\"', "").replace(" ", "").split(",")]
+            curr_state_feat = np.array(state_features)
+            diff = curr_state_feat - prev_state_feat
+            print(np.sum(diff))
+            prev_state_feat = curr_state_feat
+            #todo save as torch dataset, better for loading and shuffling
+            preprocessed_data_input.append(state_features)
+            preprocessed_data_output.append([distance])#yes it needs to be a nested list/array
             #end with
         #end for
         print("distance dict = ", distance_dict)
