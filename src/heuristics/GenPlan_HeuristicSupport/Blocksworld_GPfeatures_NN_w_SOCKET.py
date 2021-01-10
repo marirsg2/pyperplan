@@ -22,17 +22,17 @@ NUM_EPOCHS = 20
 BATCH_SIZE = 32
 BATCH_LOG_INTERVAL = 100
 HIDDEN_DIM_SIZE = 500
-domain_name = "gripper" #fixed set of domains
+domain_name = "blocksworld" #fixed set of domains
 home_dir = "/home/yochan-ubuntu19"
 lisp_feature_gen_base_folder = home_dir +"/workspace/deepplan/dist"
-relative_location_problem_and_feature_files = "planning/sayphi/domains/gripper/probsets"
-target_domain_name = "gripper" #should match folder name in the lisp program directory
-lisp_input_file = "./test.pddl"
-train_data_file = "../GenPlan_data/JPMC_GenPlan_gripper_singleSetting_varyRoomsBalls_40k.p"
+relative_location_problem_and_feature_files = "planning/sayphi/domains/blocksworld/probsets"
+target_domain_name = "blocksworld" #should match folder name in the lisp program directory
+lisp_input_file = lisp_feature_gen_base_folder + "/" +relative_location_problem_and_feature_files +"/test.pddl"
+train_data_file = "../GenPlan_data/JPMC_GenPlan_Blocksworld.p"
 preprocessed_data_save_file = train_data_file.replace(".p", "_preprocessed.p")
 pickled_preprocessed_data = None # None # or its the save file preprocessed_data_save_file
 # pickled_preprocessed_data = preprocessed_data_save_file # None #or its the save file preprocessed_data_save_file
-trained_model_location = "gripper_GP_NN_heuristic_weights_multi_setting_VaryRoomBall.pt"
+trained_model_location = "blocksworld_GP_NN_heuristic_weights_multi_setting.pt"
 
 
 
@@ -101,7 +101,7 @@ def train_NN(train_torch_dataset, num_GP_features =100, hidden_dim_size = 50):
 if __name__ == "__main__":
     print('Starting')
     print("********DOUBLE CHECK THE DOMAIN, ARE YOU USING THE RIGHT DOMAIN !!********")
-    print("IMPORTANT make sure you executed ./run-deepplan.sh gripper test.pddl")
+    print("IMPORTANT make sure you executed ./run-deepplan.sh blocksworld test.pddl")
     print("REMEMBER TO START CLIENT FIRST, else you may have to restart terminal running deeplan.sh or computer")
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # "127.0.0.1"
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     print('  Sending OK')
     lisp_socket.send(bytes("ok\n", "utf-8"))
     print('  Sent OK')
-    print("IMPORTANT make sure you executed /run-deepplan.sh gripper test.pddl ")
+    print("IMPORTANT make sure you executed /run-deepplan.sh blocksworld test.pddl ")
     #========================
     # now use the socket comm
 
@@ -141,7 +141,7 @@ if __name__ == "__main__":
         #get the feature size --this is ugly but prevents repetitive checks or reassignments to feature size
         state, goal, distance = list(raw_data)[1]
         # prepare to call the lisp program to get the features
-        convert_to_gripper_problem_file(state, goal, lisp_input_file)
+        convert_to_blocksworld_problem_file(state, goal, lisp_input_file)
         with open(lisp_input_file, "r") as src:
             all_lines = src.readlines()
             problem_file_desc = " ".join(
@@ -191,7 +191,7 @@ if __name__ == "__main__":
                 distance_dict[distance] = 1
 
             # distance = 5 #todo remove this, purely for testing
-            convert_to_gripper_problem_file(state, goal, lisp_input_file)
+            convert_to_blocksworld_problem_file(state, goal, lisp_input_file)
             with open(lisp_input_file, "r") as src:
                 all_lines = src.readlines()
                 problem_file_desc = " ".join(
