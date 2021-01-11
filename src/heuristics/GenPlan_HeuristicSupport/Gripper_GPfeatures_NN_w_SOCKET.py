@@ -22,6 +22,7 @@ NUM_EPOCHS = 20
 BATCH_SIZE = 32
 BATCH_LOG_INTERVAL = 100
 HIDDEN_DIM_SIZE = 500
+LEARNING_RATE = 1E-5
 domain_name = "gripper" #fixed set of domains
 home_dir = "/home/yochan-ubuntu19"
 lisp_feature_gen_base_folder = home_dir +"/workspace/deepplan/dist"
@@ -71,7 +72,7 @@ class GP_NN_heuristic_model_class(torch.nn.Module):
 def train_NN(train_torch_dataset, num_GP_features =100, hidden_dim_size = 50):
     NN_model = GP_NN_heuristic_model_class(num_GP_features, hidden_dim_size)
     criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.SGD(NN_model.parameters(), lr=0.0001)
+    optimizer = torch.optim.SGD(NN_model.parameters(), lr=LEARNING_RATE)
     optimizer.zero_grad()
     params = {'batch_size': BATCH_SIZE,
               'shuffle': True,
@@ -99,34 +100,32 @@ def train_NN(train_torch_dataset, num_GP_features =100, hidden_dim_size = 50):
 
 
 if __name__ == "__main__":
-    print('Starting')
-    print("********DOUBLE CHECK THE DOMAIN, ARE YOU USING THE RIGHT DOMAIN !!********")
-    print("IMPORTANT make sure you executed ./run-deepplan.sh gripper test.pddl")
-    print("REMEMBER TO START CLIENT FIRST, else you may have to restart terminal running deeplan.sh or computer")
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # "127.0.0.1"
-    s.bind(('localhost', 1800))
-    s.listen(1)
-    print('  Waiting for client')
-    lisp_socket, address = s.accept()
-    print(f"  Connection from {address} has been established.")
-    print('  Sending OK')
-    lisp_socket.send(bytes("ok\n", "utf-8"))
-    print('  Sent OK')
-    print("IMPORTANT make sure you executed /run-deepplan.sh gripper test.pddl ")
-    #========================
-    # now use the socket comm
+    if pickled_preprocessed_data == None: #then we need to generate the dataset
+        print('Starting')
+        print("********DOUBLE CHECK THE DOMAIN, ARE YOU USING THE RIGHT DOMAIN !!********")
+        print("IMPORTANT make sure you executed ./run-deepplan.sh gripper test.pddl")
+        print("REMEMBER TO START CLIENT FIRST, else you may have to restart terminal running deeplan.sh or computer")
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # "127.0.0.1"
+        s.bind(('localhost', 1800))
+        s.listen(1)
+        print('  Waiting for client')
+        lisp_socket, address = s.accept()
+        print(f"  Connection from {address} has been established.")
+        print('  Sending OK')
+        lisp_socket.send(bytes("ok\n", "utf-8"))
+        print('  Sent OK')
+        print("IMPORTANT make sure you executed /run-deepplan.sh gripper test.pddl ")
+        #========================
+        # now use the socket comm
 
 
-    #========================
+        #========================
 
-    preprocessed_torch_dataset = []
-    feature_size = -1
-    if pickled_preprocessed_data != None:
-        with open(preprocessed_data_save_file, "rb") as src:
-            preprocessed_torch_dataset = pickle.load(src)
-            feature_size = preprocessed_torch_dataset[0][0].shape[0]
-    else:
+        preprocessed_torch_dataset = []
+        feature_size = -1
+
+
         raw_data = None
         with open(train_data_file,"rb") as src:
             raw_data = pickle.load(src)
@@ -155,7 +154,7 @@ if __name__ == "__main__":
         while not msg.endswith("-1"):  # yup thats our end char, so it is
             msg += lisp_socket.recv(100000).decode("utf-8")
         print('  Received', msg)
-        state_features = [int(x) for x in msg.replace('\"', "").replace(" ", "").split(",")]
+        state_features = [int(x) for x in msg.replace('\"', "").replace(" ", "").split(",")][:-1] #ignore the last "-1"
         feature_size = len(state_features)
         # OLD VERSION #copy this file to the target location for lisp feat gen to read
         # os.system("cp " + lisp_input_file + " " + lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files)
@@ -205,7 +204,7 @@ if __name__ == "__main__":
             while not msg.endswith("-1"):  # yup thats a lousy end char, but so it is
                 msg += lisp_socket.recv(100000).decode("utf-8")
             print('  Received', msg)
-            state_features = [int(x) for x in msg.replace('\"', "").replace(" ", "").split(",")]
+            state_features = [int(x) for x in msg.replace('\"', "").replace(" ", "").split(",")][:-1] #ignore the last "-1"
             curr_state_feat = np.array(state_features)
             diff = curr_state_feat - prev_state_feat
             print(np.sum(diff))
@@ -239,7 +238,11 @@ if __name__ == "__main__":
             pickle.dump(output_std, dest)
         print("finished preprocessing data")
 
-    #end else - for preparing the preprocessed data
+    #end if pickled_preprocessed_data == None:
+    elif pickled_preprocessed_data != None:
+        with open(preprocessed_data_save_file, "rb") as src:
+            preprocessed_torch_dataset = pickle.load(src)
+            feature_size = preprocessed_torch_dataset[0][0].shape[0]
     print("num train data = ", preprocessed_torch_dataset.tensors[1].shape)
 
     #todo get dim size based on lisp program feedback, set as feature size

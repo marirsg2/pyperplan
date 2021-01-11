@@ -113,7 +113,7 @@ if __name__ == "__main__":
     print('  Sending OK')
     lisp_socket.send(bytes("ok\n", "utf-8"))
     print('  Sent OK')
-    print("IMPORTANT make sure you executed /run-deepplan.sh blocksworld test.pddl ")
+    print("IMPORTANT make sure you executed ./run-deepplan.sh blocksworld test.pddl")
     #========================
     # now use the socket comm
 
@@ -155,7 +155,7 @@ if __name__ == "__main__":
         while not msg.endswith("-1"):  # yup thats our end char, so it is
             msg += lisp_socket.recv(100000).decode("utf-8")
         print('  Received', msg)
-        state_features = [int(x) for x in msg.replace('\"', "").replace(" ", "").split(",")]
+        state_features = [int(x) for x in msg.replace('\"', "").replace(" ", "").split(",")][:-1] #ignore the last "-1"
         feature_size = len(state_features)
         # OLD VERSION #copy this file to the target location for lisp feat gen to read
         # os.system("cp " + lisp_input_file + " " + lisp_feature_gen_base_folder + "/" + relative_location_problem_and_feature_files)
@@ -178,7 +178,7 @@ if __name__ == "__main__":
         distance_dict = {}
         print("feature_size = ",feature_size)
         shuffle(raw_data)
-        for state,goal,distance in raw_data:
+        for state,goal,distance in raw_data[0:100]:
             # print("ENSURE YOU HAVE REMOVED THE size LIMITATION ON THE RAW DATA ")
             # print("ENSURE YOU HAVE REMOVED THE size  LIMITATION ON THE RAW DATA ")
             # print("ENSURE YOU HAVE REMOVED THE size  LIMITATION ON THE RAW DATA ")
@@ -205,7 +205,7 @@ if __name__ == "__main__":
             while not msg.endswith("-1"):  # yup thats a lousy end char, but so it is
                 msg += lisp_socket.recv(100000).decode("utf-8")
             print('  Received', msg)
-            state_features = [int(x) for x in msg.replace('\"', "").replace(" ", "").split(",")]
+            state_features = [int(x) for x in msg.replace('\"', "").replace(" ", "").split(",")][:-1] #ignore the last "-1"
             curr_state_feat = np.array(state_features)
             diff = curr_state_feat - prev_state_feat
             print(np.sum(diff))

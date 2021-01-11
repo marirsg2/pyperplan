@@ -14,7 +14,7 @@ import numpy as np
 import socket
 from heuristics.GenPlan_HeuristicSupport.PDDL_util_func import *
 from heuristics.heuristic_base import Heuristic
-from heuristics.GenPlan_HeuristicSupport.Gripper_GPfeatures_NN import \
+from heuristics.GenPlan_HeuristicSupport.Gripper_GPfeatures_NN_w_SOCKET import \
         domain_name, trained_model_location, lisp_input_file,lisp_feature_gen_base_folder,\
         relative_location_problem_and_feature_files,preprocessed_data_save_file
 
@@ -54,7 +54,7 @@ def SOCKET_compute_NN_wGPF_heuristic(state_frozen_set_proposition_strings, goal_
     print('  Problem sent')
     print('  Receiving new generalized state')
     msg = lisp_socket.recv(100000).decode("utf-8")
-    while not msg.endswith("\""):  # yup thats a lousy end char, but so it is
+    while not msg.endswith("-1"):  # yup thats a lousy end char, but so it is
         msg += lisp_socket.recv(100000).decode("utf-8")
     print('  Received', msg)
     state_features = [ int(x) for x in msg.replace('\"',"").replace(" ","").split(",") ]
