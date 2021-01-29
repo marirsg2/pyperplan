@@ -112,7 +112,7 @@ def convert_to_gripper_problem_file(state,goal,dest_problem_file):
         #collect all objects in the state
 
         temp_obj_dict = {"robot":set(),"gripper":set(),"room":set(),"ball":set()}
-        for proposition in state:
+        for proposition in list(goal)+list(state):
             temp_objs = proposition.split("_")[1:]
             for single_obj in temp_objs:
                 for single_key in temp_obj_dict.keys():
