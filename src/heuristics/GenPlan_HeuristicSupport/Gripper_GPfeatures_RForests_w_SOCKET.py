@@ -40,11 +40,14 @@ RF_model_file_name = "RF_gripper.p"
 
 
 
+# get the old model saved on github ?
+
+
 def train_RF(X_train,y_train):
     reg = GradientBoostingRegressor(random_state=0)
     reg.fit(X_train, y_train)
     # print(reg.score(X_train,y_train))
-    print((np.linalg.norm(y_train-reg.predict(X_train))**2/len(y_train)))
+    print("Accuracy = ",(np.linalg.norm(y_train-reg.predict(X_train))**2/len(y_train)))
     # print(math.sqrt(np.linalg.norm(y_train-reg.predict(X_train))**2/len(y_train)))
     return reg
 
@@ -189,14 +192,14 @@ if __name__ == "__main__":
                     pickle.dump(output_mean, dest)
                     pickle.dump(output_std, dest)
                 #---end with
-                train_loader = DataLoader(preprocessed_torch_dataset, batch_size=len(preprocessed_torch_dataset))
-                X_data = next(iter(train_loader))[0].numpy()
-                train_loader = DataLoader(preprocessed_torch_dataset, batch_size=len(preprocessed_torch_dataset))
-                y_data = next(iter(train_loader))[1].numpy()
-                y_data = y_data.ravel()
-                trained_RF_model = train_RF(X_data, y_data)
-                with open(RF_model_file_name, "wb") as dest:
-                    pickle.dump(trained_RF_model, dest)
+                # train_loader = DataLoader(preprocessed_torch_dataset, batch_size=len(preprocessed_torch_dataset))
+                # X_data = next(iter(train_loader))[0].numpy()
+                # train_loader = DataLoader(preprocessed_torch_dataset, batch_size=len(preprocessed_torch_dataset))
+                # y_data = next(iter(train_loader))[1].numpy()
+                # y_data = y_data.ravel()
+                # trained_RF_model = train_RF(X_data, y_data)
+                # with open(RF_model_file_name, "wb") as dest:
+                #     pickle.dump(trained_RF_model, dest)
 
 
         #end for
